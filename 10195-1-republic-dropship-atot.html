@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LEGO 10195 — Republic Dropship with AT-OT Checklist</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0c10;--surface:#12151c;--surface2:#1a1f2b;--border:#252c3a;
+    --accent:#7ab84a;--accent2:#4ab88a;--done:#1e2a1a;--done-border:#3a6b3a;
+    --done-text:#5a9a5a;--text:#c8cdd8;--text-dim:#5a6070;--text-bright:#eef0f5;
+    --ds-color:#4ab4e8;--at-color:#e8a84a;--both-color:#a07ad4;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:"IBM Plex Mono",monospace;min-height:100vh}
+  header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 20px;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+  .header-title{flex:1}
+  .set-number{font-family:"Orbitron",sans-serif;font-size:11px;font-weight:400;letter-spacing:4px;color:var(--accent);text-transform:uppercase;margin-bottom:4px}
+  h1{font-family:"Orbitron",sans-serif;font-size:16px;font-weight:900;color:var(--text-bright);letter-spacing:1px}
+  .progress-block{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .progress-label{font-size:10px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
+  .progress-count{font-family:"Orbitron",sans-serif;font-size:15px;font-weight:700;color:var(--accent)}
+  .progress-count span{font-size:10px;color:var(--text-dim);font-weight:400;font-family:"IBM Plex Mono",monospace}
+  .progress-bar-wrap{width:140px;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+  .progress-bar{height:100%;background:var(--accent);border-radius:2px;transition:width 0.4s ease;width:0%}
+  .controls{display:flex;gap:6px;flex-wrap:wrap;padding:10px 20px;border-bottom:1px solid var(--border);background:var(--bg);align-items:center}
+  .filter-label{font-size:10px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-right:2px}
+  .filter-btn{background:var(--surface);border:1px solid var(--border);color:var(--text-dim);font-family:"IBM Plex Mono",monospace;font-size:11px;padding:5px 10px;border-radius:3px;cursor:pointer;letter-spacing:1px;transition:all 0.15s}
+  .filter-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .filter-btn.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:500}
+  .sub-btn{background:var(--surface);border:1px solid var(--border);color:var(--text-dim);font-family:"IBM Plex Mono",monospace;font-size:11px;padding:5px 10px;border-radius:3px;cursor:pointer;letter-spacing:1px;transition:all 0.15s}
+  .sub-btn[data-sub="Dropship"].active{background:var(--ds-color);border-color:var(--ds-color);color:#000;font-weight:500}
+  .sub-btn[data-sub="AT-OT"].active{background:var(--at-color);border-color:var(--at-color);color:#000;font-weight:500}
+  .sub-btn[data-sub="Both"].active{background:var(--both-color);border-color:var(--both-color);color:#fff;font-weight:500}
+  .sub-btn[data-sub="All"].active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:500}
+  .sub-btn:hover{border-color:var(--accent2);color:var(--text)}
+  .sep{color:var(--border);margin:0 4px}
+  .spacer{flex:1}
+  .action-btn{background:transparent;border:1px solid var(--border);color:var(--text-dim);font-family:"IBM Plex Mono",monospace;font-size:11px;padding:5px 10px;border-radius:3px;cursor:pointer;letter-spacing:1px;transition:all 0.15s}
+  .action-btn:hover{border-color:var(--accent2);color:var(--accent2)}
+  .reset-btn{background:transparent;border:1px solid #3a2a2a;color:#7a4a4a;font-family:"IBM Plex Mono",monospace;font-size:11px;padding:5px 10px;border-radius:3px;cursor:pointer;transition:all 0.15s}
+  .reset-btn:hover{border-color:#8a3a3a;color:#c05050}
+  .color-filters{padding:10px 20px;display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--border);background:var(--bg);align-items:center}
+  .color-pill{display:flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border);color:var(--text-dim);font-family:"IBM Plex Mono",monospace;font-size:10px;padding:3px 8px;border-radius:20px;cursor:pointer;transition:all 0.15s}
+  .color-pill:hover{border-color:var(--accent2);color:var(--text)}
+  .color-pill.active{border-color:var(--accent2);color:var(--text-bright);background:rgba(74,184,138,0.1)}
+  .color-dot{width:8px;height:8px;border-radius:50%;border:1px solid rgba(255,255,255,0.2);flex-shrink:0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;padding:20px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:12px;cursor:pointer;transition:all 0.2s;display:flex;flex-direction:column;gap:8px;position:relative;user-select:none}
+  .card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.4)}
+  .card.found{background:var(--done);border-color:var(--done-border);opacity:0.65}
+  .card.found:hover{opacity:0.8;transform:none;box-shadow:none}
+  .card.partial{border-color:#1a3a1a}
+  .card.hidden{display:none}
+  .sub-pip{position:absolute;top:8px;right:8px;width:8px;height:8px;border-radius:50%}
+  .sub-pip.Dropship{background:var(--ds-color)}
+  .sub-pip.AT-OT{background:var(--at-color)}
+  .sub-pip.Both{background:var(--both-color)}
+  .card.found .sub-pip{display:none}
+  .check-overlay{position:absolute;top:8px;right:8px;width:20px;height:20px;border-radius:50%;background:var(--done-text);display:none;align-items:center;justify-content:center;font-size:11px;color:#fff}
+  .card.found .check-overlay{display:flex}
+  .card-img{width:100%;aspect-ratio:1;object-fit:contain;background:#1e2230;border-radius:4px;padding:6px;border:1px solid var(--border)}
+  .card.found .card-img{filter:grayscale(0.6) brightness(0.7)}
+  .card-part{font-size:10px;color:var(--text-dim);letter-spacing:1px}
+  .card-name{font-size:11px;color:var(--text);line-height:1.4;font-weight:500}
+  .card.found .card-name{color:var(--done-text)}
+  .card.partial .card-name{color:#7aaa5a}
+  .card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:auto}
+  .card-counter{display:flex;align-items:center;gap:4px}
+  .counter-btn{width:22px;height:22px;border-radius:3px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .counter-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .counter-input{width:34px;background:var(--surface2);border:1px solid var(--border);border-radius:3px;color:var(--text-bright);font-family:"Orbitron",sans-serif;font-size:12px;font-weight:700;text-align:center;padding:2px 0;-moz-appearance:textfield}
+  .counter-input::-webkit-outer-spin-button,.counter-input::-webkit-inner-spin-button{-webkit-appearance:none}
+  .counter-input:focus{outline:none;border-color:var(--accent2)}
+  .counter-total{font-family:"Orbitron",sans-serif;font-size:10px;color:var(--text-dim)}
+  .card.found .counter-btn{border-color:var(--done-border);color:var(--done-text);background:transparent}
+  .card.found .counter-input{color:var(--done-text);border-color:var(--done-border);background:transparent}
+  .card.found .counter-total{color:var(--done-text)}
+  .card.partial .counter-input{color:var(--accent);border-color:#1a3a1a}
+  .color-badge{font-size:9px;padding:2px 6px;border-radius:3px;background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text-dim)}
+  .empty{grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--text-dim);font-size:13px;letter-spacing:2px}
+  .complete-banner{display:none;position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:var(--accent);color:#000;font-family:"Orbitron",sans-serif;font-size:13px;font-weight:700;letter-spacing:3px;padding:16px 32px;border-radius:4px;box-shadow:0 8px 40px rgba(122,184,74,0.4);z-index:200;white-space:nowrap}
+  .legend{display:flex;gap:12px;align-items:center;padding:8px 20px;border-bottom:1px solid var(--border);background:var(--bg);font-size:10px;color:var(--text-dim)}
+  .legend-item{display:flex;align-items:center;gap:5px}
+  .legend-dot{width:8px;height:8px;border-radius:50%}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-title">
+    <div class="set-number">Set No. 10195</div>
+    <h1>Republic Dropship with AT-OT</h1>
+  </div>
+  <div class="progress-block">
+    <div>
+      <div class="progress-label">Parts Found</div>
+      <div class="progress-count" id="found-count">0 <span>/ 250 types</span></div>
+    </div>
+    <div>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+    </div>
+  </div>
+</header>
+
+<div class="controls">
+  <span class="filter-label">Show:</span>
+  <button class="filter-btn active" data-filter="all">All</button>
+  <button class="filter-btn" data-filter="remaining">Remaining</button>
+  <button class="filter-btn" data-filter="found">Found</button>
+  <span class="sep">|</span>
+  <span class="filter-label">Model:</span>
+  <button class="sub-btn active" data-sub="All">All</button>
+  <button class="sub-btn" data-sub="Dropship">Dropship</button>
+  <button class="sub-btn" data-sub="AT-OT">AT-OT</button>
+  <button class="sub-btn" data-sub="Both">Shared</button>
+  <div class="spacer"></div>
+  <button class="action-btn" onclick="exportProgress()">Export</button>
+  <label class="action-btn" style="cursor:pointer">Import<input type="file" accept=".json" onchange="importProgress(event)" style="display:none"></label>
+  <button class="reset-btn" onclick="resetAll()">Reset</button>
+</div>
+
+<div class="legend">
+  <span>Part colour key:</span>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--ds-color)"></div>Dropship only</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--at-color)"></div>AT-OT only</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--both-color)"></div>Shared / Both</div>
+</div>
+
+<div class="color-filters" id="color-filters"><span class="filter-label">Color:</span></div>
+<div class="grid" id="grid"></div>
+<div class="complete-banner" id="complete-banner">🏆 ALL PARTS FOUND — BUILD TIME!</div>
+
+<script>
+const parts = [
+  {qty:1, part:"10195stk01", name:"Sticker Sheet for Set 10195", color:"—", colorId:0, sub:"Dropship"},
+  {qty:4, part:"63965", name:"Bar 6L with Stop Ring", color:"Black", colorId:11, sub:"AT-OT"},
+  {qty:3, part:"52107", name:"Brick Modified 1 x 2 with Studs on 2 Sides", color:"Black", colorId:11, sub:"Dropship"},
+  {qty:6, part:"4589b", name:"Cone 1 x 1 with Top Groove", color:"Black", colorId:11, sub:"AT-OT"},
+  {qty:2, part:"30364", name:"Hinge Brick 1 x 2 Locking 1 Finger Vertical End", color:"Black", colorId:11, sub:"AT-OT"},
+  {qty:2, part:"3938", name:"Hinge Brick 1 x 2 Top Plate", color:"Black", colorId:11, sub:"AT-OT"},
+  {qty:4, part:"30389b", name:"Hinge Brick 2 x 2 Locking 1 Finger Vertical and Axle Hole", color:"Black", colorId:11, sub:"Dropship"},
+  {qty:2, part:"30553", name:"Hinge Cylinder 1 x 2 Locking 2 Fingers", color:"Black", colorId:11, sub:"AT-OT"},
+  {qty:10, part:"44301", name:"Hinge Plate 1 x 2 Locking 1 Finger on End", color:"Black", colorId:11, sub:"AT-OT"},
+  {qty:4, part:"57539", name:"Hose Flexible Ribbed 19L", color:"Black", colorId:11, sub:"Dropship"},
+  {qty:4, part:"64644", name:"Minifigure Utensil Telescope", color:"Black", colorId:11, sub:"Dropship"},
+  {qty:2, part:"57899", name:"Minifigure Weapon Blaster SW Long", color:"Black", colorId:11, sub:"AT-OT"},
+  {qty:4, part:"58247", name:"Minifigure Weapon Blaster SW Standard", color:"Black", colorId:11, sub:"AT-OT"},
+  {qty:1, part:"3036", name:"Plate 6 x 8", color:"Black", colorId:11, sub:"Both"},
+  {qty:1, part:"6019", name:"Plate Modified 1 x 1 with U Clip", color:"Black", colorId:11, sub:"Dropship"},
+  {qty:2, part:"48336", name:"Plate Modified 1 x 2 with Bar Handle Closed Ends", color:"Black", colorId:11, sub:"Dropship"},
+  {qty:26, part:"2444", name:"Plate Modified 2 x 2 with Pin Hole", color:"Black", colorId:11, sub:"Both"},
+  {qty:3, part:"60474", name:"Plate Round 4 x 4 with Hole", color:"Black", colorId:11, sub:"Dropship"},
+  {qty:4, part:"2744", name:"Technic Slope 6 x 1 x 1 2/3", color:"Black", colorId:11, sub:"Dropship"},
+  {qty:20, part:"3705", name:"Technic Axle 4L", color:"Black", colorId:11, sub:"Dropship"},
+  {qty:6, part:"3706", name:"Technic Axle 6L", color:"Black", colorId:11, sub:"Both"},
+  {qty:5, part:"3708", name:"Technic Axle 12L", color:"Black", colorId:11, sub:"Dropship"},
+  {qty:6, part:"32184", name:"Technic Axle Pin Connector Perpendicular 3L", color:"Black", colorId:11, sub:"Dropship"},
+  {qty:28, part:"32000", name:"Technic Brick 1 x 2 with Holes", color:"Black", colorId:11, sub:"Both"},
+  {qty:4, part:"32316", name:"Technic Liftarm Thick 1 x 5", color:"Black", colorId:11, sub:"Both"},
+  {qty:4, part:"33299", name:"Technic Liftarm Modified Crank/Pin 1 x 3", color:"Black", colorId:11, sub:"AT-OT"},
+  {qty:5, part:"60484", name:"Technic Liftarm Modified T-Shape Thick 3 x 3", color:"Black", colorId:11, sub:"Dropship"},
+  {qty:2, part:"62462", name:"Technic Pin Connector Round 2L with Slot", color:"Black", colorId:11, sub:"AT-OT"},
+  {qty:1, part:"48496", name:"Technic Pin Connector Toggle Joint Smooth Double", color:"Black", colorId:11, sub:"Dropship"},
+  {qty:3, part:"6628", name:"Technic Pin with Friction Ridges and Tow Ball", color:"Black", colorId:11, sub:"Dropship"},
+  {qty:63, part:"2780", name:"Technic Pin with Short Friction Ridges", color:"Black", colorId:11, sub:"Both"},
+  {qty:6, part:"3068", name:"Tile 2 x 2", color:"Black", colorId:11, sub:"AT-OT"},
+  {qty:4, part:"2412b", name:"Tile Modified 1 x 2 Grille with Bottom Groove", color:"Black", colorId:11, sub:"AT-OT"},
+  {qty:1, part:"2432", name:"Tile Modified 1 x 2 with Bar Handle", color:"Black", colorId:11, sub:"AT-OT"},
+  {qty:8, part:"3941", name:"Brick Round 2 x 2 with Axle Hole", color:"Blue", colorId:7, sub:"AT-OT"},
+  {qty:3, part:"x89", name:"Rubber Belt Large Round Cross Section", color:"Blue", colorId:7, sub:"Dropship"},
+  {qty:33, part:"43093", name:"Technic Axle 1L with Pin with Friction Ridges", color:"Blue", colorId:7, sub:"Both"},
+  {qty:21, part:"4274", name:"Technic Pin 1/2 without Friction Ridges", color:"Blue", colorId:7, sub:"Both"},
+  {qty:33, part:"6558", name:"Technic Pin 3L with Friction Ridges", color:"Blue", colorId:7, sub:"Both"},
+  {qty:3, part:"3010", name:"Brick 1 x 4", color:"Dark Blue", colorId:63, sub:"Dropship"},
+  {qty:4, part:"2357", name:"Brick 2 x 2 Corner", color:"Dark Blue", colorId:63, sub:"Dropship"},
+  {qty:1, part:"3001", name:"Brick 2 x 4", color:"Dark Blue", colorId:63, sub:"Dropship"},
+  {qty:2, part:"3023", name:"Plate 1 x 2", color:"Dark Blue", colorId:63, sub:"Dropship"},
+  {qty:28, part:"3710", name:"Plate 1 x 4", color:"Dark Blue", colorId:63, sub:"Dropship"},
+  {qty:20, part:"2420", name:"Plate 2 x 2 Corner", color:"Dark Blue", colorId:63, sub:"Dropship"},
+  {qty:3, part:"3021", name:"Plate 2 x 3", color:"Dark Blue", colorId:63, sub:"Dropship"},
+  {qty:4, part:"54200", name:"Slope 30 1 x 1 x 2/3", color:"Dark Blue", colorId:63, sub:"Dropship"},
+  {qty:3, part:"3039", name:"Slope 45 2 x 2", color:"Dark Blue", colorId:63, sub:"Dropship"},
+  {qty:4, part:"3045", name:"Slope 45 2 x 2 Double Convex Corner", color:"Dark Blue", colorId:63, sub:"Dropship"},
+  {qty:2, part:"4871", name:"Slope Inverted 45 4 x 2 Double with 2 x 2 Cutout", color:"Dark Blue", colorId:63, sub:"Dropship"},
+  {qty:6, part:"3069", name:"Tile 1 x 2", color:"Dark Blue", colorId:63, sub:"Dropship"},
+  {qty:4, part:"6636", name:"Tile 1 x 6", color:"Dark Blue", colorId:63, sub:"Dropship"},
+  {qty:1, part:"47759", name:"Wedge 2 x 4 Triple", color:"Dark Blue", colorId:63, sub:"Dropship"},
+  {qty:1, part:"43710", name:"Wedge 4 x 2 Triple Left", color:"Dark Blue", colorId:63, sub:"Dropship"},
+  {qty:1, part:"43711", name:"Wedge 4 x 2 Triple Right", color:"Dark Blue", colorId:63, sub:"Dropship"},
+  {qty:1, part:"47753", name:"Wedge 4 x 4 Triple Curved No Studs", color:"Dark Blue", colorId:63, sub:"Dropship"},
+  {qty:2, part:"2450", name:"Wedge Plate 3 x 3 Cut Corner", color:"Dark Blue", colorId:63, sub:"Dropship"},
+  {qty:10, part:"60208", name:"Wheel 31mm Technic", color:"Dark Blue", colorId:63, sub:"Dropship"},
+  {qty:5, part:"2456", name:"Brick 2 x 6", color:"Dark Bluish Gray", colorId:85, sub:"Dropship"},
+  {qty:4, part:"30136", name:"Brick Modified 1 x 2 with Log Profile", color:"Dark Bluish Gray", colorId:85, sub:"AT-OT"},
+  {qty:2, part:"6232", name:"Brick Modified 2 x 2 with Pin and Axle Hole", color:"Dark Bluish Gray", colorId:85, sub:"Dropship"},
+  {qty:28, part:"3062", name:"Brick Round 1 x 1", color:"Dark Bluish Gray", colorId:85, sub:"Both"},
+  {qty:12, part:"6222", name:"Brick Round 4 x 4 with 4 Side Pin Holes", color:"Dark Bluish Gray", colorId:85, sub:"Both"},
+  {qty:2, part:"4742", name:"Cone 4 x 4 x 2 Hollow No Studs", color:"Dark Bluish Gray", colorId:85, sub:"Dropship"},
+  {qty:2, part:"3961", name:"Dish 8 x 8 Inverted Solid Studs", color:"Dark Bluish Gray", colorId:85, sub:"Dropship"},
+  {qty:2, part:"47973", name:"Hinge 1 x 3 with Two Pins Locking", color:"Dark Bluish Gray", colorId:85, sub:"AT-OT"},
+  {qty:2, part:"30383", name:"Hinge Plate 1 x 2 Locking 1 Finger on Top", color:"Dark Bluish Gray", colorId:85, sub:"AT-OT"},
+  {qty:5, part:"30413", name:"Panel 1 x 4 x 1", color:"Dark Bluish Gray", colorId:85, sub:"Both"},
+  {qty:2, part:"3623", name:"Plate 1 x 3", color:"Dark Bluish Gray", colorId:85, sub:"AT-OT"},
+  {qty:11, part:"3460", name:"Plate 1 x 8", color:"Dark Bluish Gray", colorId:85, sub:"Dropship"},
+  {qty:6, part:"3022", name:"Plate 2 x 2", color:"Dark Bluish Gray", colorId:85, sub:"AT-OT"},
+  {qty:13, part:"3020", name:"Plate 2 x 4", color:"Dark Bluish Gray", colorId:85, sub:"Both"},
+  {qty:8, part:"4282", name:"Plate 2 x 16", color:"Dark Bluish Gray", colorId:85, sub:"Both"},
+  {qty:1, part:"3030", name:"Plate 4 x 10", color:"Dark Bluish Gray", colorId:85, sub:"Dropship"},
+  {qty:2, part:"4081b", name:"Plate Modified 1 x 1 with Light Attachment Thick Ring", color:"Dark Bluish Gray", colorId:85, sub:"Dropship"},
+  {qty:34, part:"2654", name:"Plate Round 2 x 2 with Rounded Bottom", color:"Dark Bluish Gray", colorId:85, sub:"Both"},
+  {qty:6, part:"30357", name:"Plate Round Corner 3 x 3", color:"Dark Bluish Gray", colorId:85, sub:"Dropship"},
+  {qty:8, part:"4286", name:"Slope 33 3 x 1", color:"Dark Bluish Gray", colorId:85, sub:"AT-OT"},
+  {qty:8, part:"3040", name:"Slope 45 2 x 1", color:"Dark Bluish Gray", colorId:85, sub:"AT-OT"},
+  {qty:37, part:"3039", name:"Slope 45 2 x 2", color:"Dark Bluish Gray", colorId:85, sub:"AT-OT"},
+  {qty:3, part:"3678b", name:"Slope 65 2 x 2 x 2 with Bottom Tube", color:"Dark Bluish Gray", colorId:85, sub:"AT-OT"},
+  {qty:4, part:"54091", name:"Slope Curved 8 x 8 x 2 Inverted Double", color:"Dark Bluish Gray", colorId:85, sub:"AT-OT"},
+  {qty:10, part:"4287", name:"Slope Inverted 33 3 x 1", color:"Dark Bluish Gray", colorId:85, sub:"AT-OT"},
+  {qty:8, part:"3665", name:"Slope Inverted 45 2 x 1", color:"Dark Bluish Gray", colorId:85, sub:"AT-OT"},
+  {qty:9, part:"3660", name:"Slope Inverted 45 2 x 2 with Flat Bottom Pin", color:"Dark Bluish Gray", colorId:85, sub:"Both"},
+  {qty:30, part:"6587", name:"Technic Axle 3L with Stud", color:"Dark Bluish Gray", colorId:85, sub:"Both"},
+  {qty:8, part:"32209", name:"Technic Axle 5.5L with Stop", color:"Dark Bluish Gray", colorId:85, sub:"AT-OT"},
+  {qty:1, part:"55013", name:"Technic Axle 8L with Stop", color:"Dark Bluish Gray", colorId:85, sub:"Dropship"},
+  {qty:3, part:"42003", name:"Technic Axle Pin Connector Perpendicular 3L 2 Pin Holes", color:"Dark Bluish Gray", colorId:85, sub:"Both"},
+  {qty:14, part:"32064", name:"Technic Brick 1 x 2 with Axle Hole", color:"Dark Bluish Gray", colorId:85, sub:"Both"},
+  {qty:8, part:"3701", name:"Technic Brick 1 x 4 with Holes", color:"Dark Bluish Gray", colorId:85, sub:"AT-OT"},
+  {qty:2, part:"32018", name:"Technic Brick 1 x 14 with Holes", color:"Dark Bluish Gray", colorId:85, sub:"AT-OT"},
+  {qty:6, part:"60483", name:"Technic Liftarm Thick 1 x 2 Axle Hole", color:"Dark Bluish Gray", colorId:85, sub:"Dropship"},
+  {qty:4, part:"32316", name:"Technic Liftarm Thick 1 x 5", color:"Dark Bluish Gray", colorId:85, sub:"Dropship"},
+  {qty:4, part:"40490", name:"Technic Liftarm Thick 1 x 9", color:"Dark Bluish Gray", colorId:85, sub:"Dropship"},
+  {qty:15, part:"6632", name:"Technic Liftarm Thin 1 x 3 Axle Holes", color:"Dark Bluish Gray", colorId:85, sub:"Dropship"},
+  {qty:5, part:"32348", name:"Technic Liftarm Modified Bent Thick 1 x 7", color:"Dark Bluish Gray", colorId:85, sub:"Dropship"},
+  {qty:2, part:"2905", name:"Technic Liftarm Modified Triangle Thin 3 x 5", color:"Dark Bluish Gray", colorId:85, sub:"Dropship"},
+  {qty:10, part:"32002", name:"Technic Pin 3/4", color:"Dark Bluish Gray", colorId:85, sub:"Dropship"},
+  {qty:4, part:"2431", name:"Tile 1 x 4", color:"Dark Bluish Gray", colorId:85, sub:"Dropship"},
+  {qty:7, part:"2555", name:"Tile Modified 1 x 1 with Clip", color:"Dark Bluish Gray", colorId:85, sub:"Dropship"},
+  {qty:4, part:"2460", name:"Tile Modified 2 x 2 with Pin", color:"Dark Bluish Gray", colorId:85, sub:"Dropship"},
+  {qty:3, part:"48933", name:"Wedge 4 x 4 Triple with Stud Notches", color:"Dark Bluish Gray", colorId:85, sub:"AT-OT"},
+  {qty:1, part:"41748", name:"Wedge 6 x 2 Left", color:"Dark Bluish Gray", colorId:85, sub:"Dropship"},
+  {qty:1, part:"41747", name:"Wedge 6 x 2 Right", color:"Dark Bluish Gray", colorId:85, sub:"Dropship"},
+  {qty:16, part:"4079", name:"Minifigure Utensil Seat/Chair 2 x 2", color:"Dark Green", colorId:80, sub:"AT-OT"},
+  {qty:9, part:"3004", name:"Brick 1 x 2", color:"Dark Red", colorId:59, sub:"Dropship"},
+  {qty:2, part:"2357", name:"Brick 2 x 2 Corner", color:"Dark Red", colorId:59, sub:"Dropship"},
+  {qty:3, part:"3001", name:"Brick 2 x 4", color:"Dark Red", colorId:59, sub:"Dropship"},
+  {qty:2, part:"4070", name:"Brick Modified 1 x 1 with Headlight", color:"Dark Red", colorId:59, sub:"Dropship"},
+  {qty:5, part:"3023", name:"Plate 1 x 2", color:"Dark Red", colorId:59, sub:"Dropship"},
+  {qty:2, part:"3021", name:"Plate 2 x 3", color:"Dark Red", colorId:59, sub:"AT-OT"},
+  {qty:10, part:"54200", name:"Slope 30 1 x 1 x 2/3", color:"Dark Red", colorId:59, sub:"Dropship"},
+  {qty:2, part:"50950", name:"Slope Curved 3 x 1", color:"Dark Red", colorId:59, sub:"Dropship"},
+  {qty:4, part:"4162", name:"Tile 1 x 8", color:"Dark Red", colorId:59, sub:"Both"},
+  {qty:1, part:"47753", name:"Wedge 4 x 4 Triple Curved No Studs", color:"Dark Red", colorId:59, sub:"AT-OT"},
+  {qty:2, part:"2450", name:"Wedge Plate 3 x 3 Cut Corner", color:"Dark Red", colorId:59, sub:"AT-OT"},
+  {qty:2, part:"43719", name:"Wedge Plate 4 x 4", color:"Dark Red", colorId:59, sub:"AT-OT"},
+  {qty:4, part:"30503", name:"Wedge Plate 4 x 4 Cut Corner", color:"Dark Red", colorId:59, sub:"Dropship"},
+  {qty:1, part:"54384", name:"Wedge Plate 6 x 3 Left", color:"Dark Red", colorId:59, sub:"AT-OT"},
+  {qty:1, part:"54383", name:"Wedge Plate 6 x 3 Right", color:"Dark Red", colorId:59, sub:"AT-OT"},
+  {qty:8, part:"60208", name:"Wheel 31mm Technic", color:"Dark Tan", colorId:69, sub:"Dropship"},
+  {qty:2, part:"4592c02", name:"Antenna Small Base with Black Lever", color:"Light Bluish Gray", colorId:86, sub:"Dropship"},
+  {qty:7, part:"63965", name:"Bar 6L with Stop Ring", color:"Light Bluish Gray", colorId:86, sub:"Dropship"},
+  {qty:6, part:"3622", name:"Brick 1 x 3", color:"Light Bluish Gray", colorId:86, sub:"Dropship"},
+  {qty:9, part:"3009", name:"Brick 1 x 6", color:"Light Bluish Gray", colorId:86, sub:"Both"},
+  {qty:1, part:"3003", name:"Brick 2 x 2", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:5, part:"3007", name:"Brick 2 x 8", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:2, part:"2458", name:"Brick Modified 1 x 2 with Pin", color:"Light Bluish Gray", colorId:86, sub:"Dropship"},
+  {qty:8, part:"3941", name:"Brick Round 2 x 2 with Axle Hole", color:"Light Bluish Gray", colorId:86, sub:"Both"},
+  {qty:10, part:"44359", name:"Cylinder Hemisphere 3 x 3 Ball Turret", color:"Light Bluish Gray", colorId:86, sub:"Both"},
+  {qty:5, part:"44358", name:"Cylinder Hemisphere 3 x 3 Ball Turret Socket", color:"Light Bluish Gray", colorId:86, sub:"Both"},
+  {qty:10, part:"3960pb005", name:"Dish 4 x 4 Inverted with AT-OT Pattern", color:"Light Bluish Gray", colorId:86, sub:"Both"},
+  {qty:18, part:"44375a", name:"Dish 6 x 6 Inverted Hollow Studs", color:"Light Bluish Gray", colorId:86, sub:"Both"},
+  {qty:4, part:"3937", name:"Hinge Brick 1 x 2 Base", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:2, part:"30540", name:"Hinge Brick 1 x 2 Locking 2 Fingers Horizontal", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:12, part:"44302", name:"Hinge Plate 1 x 2 Locking 2 Fingers on End", color:"Light Bluish Gray", colorId:86, sub:"Both"},
+  {qty:3, part:"44568", name:"Hinge Plate 1 x 4 Locking Dual 1 Finger", color:"Light Bluish Gray", colorId:86, sub:"Dropship"},
+  {qty:29, part:"3023", name:"Plate 1 x 2", color:"Light Bluish Gray", colorId:86, sub:"Both"},
+  {qty:9, part:"3710", name:"Plate 1 x 4", color:"Light Bluish Gray", colorId:86, sub:"Both"},
+  {qty:32, part:"3666", name:"Plate 1 x 6", color:"Light Bluish Gray", colorId:86, sub:"Both"},
+  {qty:3, part:"4477", name:"Plate 1 x 10", color:"Light Bluish Gray", colorId:86, sub:"Both"},
+  {qty:6, part:"3021", name:"Plate 2 x 3", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:13, part:"3795", name:"Plate 2 x 6", color:"Light Bluish Gray", colorId:86, sub:"Both"},
+  {qty:9, part:"3832", name:"Plate 2 x 10", color:"Light Bluish Gray", colorId:86, sub:"Both"},
+  {qty:8, part:"3031", name:"Plate 4 x 4", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:11, part:"3035", name:"Plate 4 x 8", color:"Light Bluish Gray", colorId:86, sub:"Both"},
+  {qty:1, part:"3036", name:"Plate 6 x 8", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:2, part:"3028", name:"Plate 6 x 12", color:"Light Bluish Gray", colorId:86, sub:"Dropship"},
+  {qty:3, part:"41539", name:"Plate 8 x 8", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:7, part:"2476", name:"Plate Modified 2 x 2 with Pin on Bottom", color:"Light Bluish Gray", colorId:86, sub:"Both"},
+  {qty:2, part:"30157", name:"Plate Modified 2 x 4 with Pins and Thin Angled Supports", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:8, part:"30303", name:"Plate Modified 6 x 6 Cross with Dome", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:16, part:"4073", name:"Plate Round 1 x 1", color:"Light Bluish Gray", colorId:86, sub:"Both"},
+  {qty:2, part:"3045", name:"Slope 45 2 x 2 Double Convex Corner", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:12, part:"3037", name:"Slope 45 2 x 4", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:1, part:"3747b", name:"Slope Inverted 33 3 x 2 with Flat Bottom Pin", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:8, part:"3713", name:"Technic Bush", color:"Light Bluish Gray", colorId:86, sub:"Both"},
+  {qty:9, part:"4265c", name:"Technic Bush 1/2 Smooth", color:"Light Bluish Gray", colorId:86, sub:"Dropship"},
+  {qty:7, part:"4519", name:"Technic Axle 3L", color:"Light Bluish Gray", colorId:86, sub:"Both"},
+  {qty:4, part:"32073", name:"Technic Axle 5L", color:"Light Bluish Gray", colorId:86, sub:"Dropship"},
+  {qty:4, part:"32016", name:"Technic Axle Pin Connector Angled #3 157.5 degrees", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:11, part:"6538c", name:"Technic Axle Connector 2L Smooth", color:"Light Bluish Gray", colorId:86, sub:"Dropship"},
+  {qty:8, part:"6541", name:"Technic Brick 1 x 1 with Hole", color:"Light Bluish Gray", colorId:86, sub:"Dropship"},
+  {qty:6, part:"3702", name:"Technic Brick 1 x 8 with Holes", color:"Light Bluish Gray", colorId:86, sub:"Both"},
+  {qty:5, part:"2730", name:"Technic Brick 1 x 10 with Holes", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:11, part:"32531", name:"Technic Brick 4 x 6 Open Center", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:14, part:"32523", name:"Technic Liftarm Thick 1 x 3", color:"Light Bluish Gray", colorId:86, sub:"Both"},
+  {qty:2, part:"32524", name:"Technic Liftarm Thick 1 x 7", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:6, part:"32525", name:"Technic Liftarm Thick 1 x 11", color:"Light Bluish Gray", colorId:86, sub:"Dropship"},
+  {qty:10, part:"32271", name:"Technic Liftarm Modified Bent Thick 1 x 9 (7-3)", color:"Light Bluish Gray", colorId:86, sub:"Both"},
+  {qty:2, part:"32009", name:"Technic Liftarm Modified Bent Thick 1 x 11.5 Double", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:7, part:"32140", name:"Technic Liftarm Modified Bent L-Shape 2 x 4", color:"Light Bluish Gray", colorId:86, sub:"Dropship"},
+  {qty:18, part:"61184", name:"Technic Pin 1/2 with 2L Bar Extension (Flick Missile)", color:"Light Bluish Gray", colorId:86, sub:"Dropship"},
+  {qty:6, part:"4274", name:"Technic Pin 1/2 without Friction Ridges", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:2, part:"32333", name:"Technic Pin Connector Block 1 x 5 x 3", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:3, part:"62462", name:"Technic Pin Connector Round 2L with Slot", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:18, part:"3673", name:"Technic Pin without Friction Ridges", color:"Light Bluish Gray", colorId:86, sub:"Both"},
+  {qty:8, part:"3709", name:"Technic Plate 2 x 4 with 3 Holes", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:5, part:"2431", name:"Tile 1 x 4", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:5, part:"4162", name:"Tile 1 x 8", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:1, part:"43710", name:"Wedge 4 x 2 Triple Left", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:1, part:"43711", name:"Wedge 4 x 2 Triple Right", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:2, part:"51739", name:"Wedge Plate 2 x 4", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:3, part:"43723", name:"Wedge Plate 3 x 2 Left", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:3, part:"43722", name:"Wedge Plate 3 x 2 Right", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:2, part:"2419", name:"Wedge Plate 3 x 6 Cut Corners", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:2, part:"32059", name:"Wedge Plate 4 x 6 Cut Corners", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:1, part:"54384", name:"Wedge Plate 6 x 3 Left", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:1, part:"54383", name:"Wedge Plate 6 x 3 Right", color:"Light Bluish Gray", colorId:86, sub:"AT-OT"},
+  {qty:2, part:"56145", name:"Wheel 30.4mm", color:"Light Bluish Gray", colorId:86, sub:"Dropship"},
+  {qty:16, part:"4589b", name:"Cone 1 x 1 with Top Groove", color:"Red", colorId:5, sub:"Dropship"},
+  {qty:4, part:"30365", name:"Hinge Brick 1 x 2 Locking 2 Fingers Vertical End", color:"Red", colorId:5, sub:"Dropship"},
+  {qty:2, part:"6134", name:"Hinge Brick 2 x 2 Top Plate", color:"Red", colorId:5, sub:"Dropship"},
+  {qty:1, part:"3794a", name:"Plate Modified 1 x 2 with 1 Stud without Groove (Jumper)", color:"Red", colorId:5, sub:"Dropship"},
+  {qty:1, part:"60470", name:"Plate Modified 1 x 2 with 2 U Clips", color:"Red", colorId:5, sub:"Dropship"},
+  {qty:1, part:"2817", name:"Plate Modified 2 x 2 with Pin Holes", color:"Red", colorId:5, sub:"Dropship"},
+  {qty:9, part:"32062", name:"Technic Axle 2L Notched", color:"Red", colorId:5, sub:"Both"},
+  {qty:1, part:"32523", name:"Technic Liftarm Thick 1 x 3", color:"Red", colorId:5, sub:"Dropship"},
+  {qty:16, part:"32054", name:"Technic Pin 3L with Friction Ridges and Stop Bush", color:"Red", colorId:5, sub:"Both"},
+  {qty:6, part:"4032", name:"Plate Round 2 x 2 with Axle Hole", color:"Reddish Brown", colorId:88, sub:"Dropship"},
+  {qty:6, part:"44728", name:"Bracket 1 x 2 - 2 x 2", color:"Tan", colorId:2, sub:"Dropship"},
+  {qty:4, part:"3003", name:"Brick 2 x 2", color:"Tan", colorId:2, sub:"Both"},
+  {qty:4, part:"2540", name:"Plate Modified 1 x 2 with Bar Handle on Side", color:"Tan", colorId:2, sub:"Dropship"},
+  {qty:15, part:"4073", name:"Plate Round 1 x 1", color:"Tan", colorId:2, sub:"Both"},
+  {qty:9, part:"3700", name:"Technic Brick 1 x 2 with Hole", color:"Tan", colorId:2, sub:"Both"},
+  {qty:7, part:"32556", name:"Technic Pin 3L without Friction Ridges", color:"Tan", colorId:2, sub:"Both"},
+  {qty:2, part:"4150", name:"Tile Round 2 x 2", color:"Tan", colorId:2, sub:"AT-OT"},
+  {qty:3, part:"4872", name:"Windscreen 3 x 4 x 4 Inverted", color:"Trans-Brown", colorId:13, sub:"AT-OT"},
+  {qty:1, part:"41883", name:"Windscreen 6 x 4 x 2 Wedge Curved", color:"Trans-Brown", colorId:13, sub:"Dropship"},
+  {qty:10, part:"3004", name:"Brick 1 x 2", color:"White", colorId:1, sub:"Dropship"},
+  {qty:8, part:"3010", name:"Brick 1 x 4", color:"White", colorId:1, sub:"Dropship"},
+  {qty:17, part:"3008", name:"Brick 1 x 8", color:"White", colorId:1, sub:"Dropship"},
+  {qty:2, part:"3001", name:"Brick 2 x 4", color:"White", colorId:1, sub:"Dropship"},
+  {qty:4, part:"3063", name:"Brick Round Corner 2 x 2 Macaroni", color:"White", colorId:1, sub:"Dropship"},
+  {qty:4, part:"41531", name:"Cylinder 4 x 4 x 1 2/3 with Pin Holes and Center Bar", color:"White", colorId:1, sub:"Dropship"},
+  {qty:1, part:"2335", name:"Flag 2 x 2 Square", color:"White", colorId:1, sub:"Dropship"},
+  {qty:3, part:"44570", name:"Hinge Plate 3 x 4 Locking Dual 2 Fingers", color:"White", colorId:1, sub:"Dropship"},
+  {qty:6, part:"3623", name:"Plate 1 x 3", color:"White", colorId:1, sub:"Dropship"},
+  {qty:8, part:"4477", name:"Plate 1 x 10", color:"White", colorId:1, sub:"Dropship"},
+  {qty:2, part:"3034", name:"Plate 2 x 8", color:"White", colorId:1, sub:"Dropship"},
+  {qty:3, part:"3032", name:"Plate 4 x 6", color:"White", colorId:1, sub:"Dropship"},
+  {qty:6, part:"3036", name:"Plate 6 x 8", color:"White", colorId:1, sub:"Dropship"},
+  {qty:4, part:"4515", name:"Slope 10 6 x 8", color:"White", colorId:1, sub:"Dropship"},
+  {qty:2, part:"54200", name:"Slope 30 1 x 1 x 2/3", color:"White", colorId:1, sub:"Dropship"},
+  {qty:14, part:"3040", name:"Slope 45 2 x 1", color:"White", colorId:1, sub:"Dropship"},
+  {qty:2, part:"4445", name:"Slope 45 2 x 8", color:"White", colorId:1, sub:"Dropship"},
+  {qty:6, part:"60481", name:"Slope 65 2 x 1 x 2", color:"White", colorId:1, sub:"Dropship"},
+  {qty:2, part:"3678b", name:"Slope 65 2 x 2 x 2 with Bottom Tube", color:"White", colorId:1, sub:"Dropship"},
+  {qty:8, part:"50950", name:"Slope Curved 3 x 1", color:"White", colorId:1, sub:"Dropship"},
+  {qty:14, part:"42023", name:"Slope Curved 6 x 1 Inverted", color:"White", colorId:1, sub:"Dropship"},
+  {qty:26, part:"42022", name:"Slope Curved 6 x 1 with 2 Studs", color:"White", colorId:1, sub:"Dropship"},
+  {qty:6, part:"3665", name:"Slope Inverted 45 2 x 1", color:"White", colorId:1, sub:"Dropship"},
+  {qty:2, part:"52501", name:"Slope Inverted 45 6 x 1 Double with 1 x 4 Cutout", color:"White", colorId:1, sub:"Dropship"},
+  {qty:4, part:"2730", name:"Technic Brick 1 x 10 with Holes", color:"White", colorId:1, sub:"Dropship"},
+  {qty:4, part:"3703", name:"Technic Brick 1 x 16 with Holes", color:"White", colorId:1, sub:"Dropship"},
+  {qty:8, part:"32278", name:"Technic Liftarm Thick 1 x 15", color:"White", colorId:1, sub:"Dropship"},
+  {qty:18, part:"62462", name:"Technic Pin Connector Round 2L with Slot", color:"White", colorId:1, sub:"Dropship"},
+  {qty:10, part:"6636", name:"Tile 1 x 6", color:"White", colorId:1, sub:"Dropship"},
+  {qty:7, part:"6179", name:"Tile Modified 4 x 4 with Studs on Edge", color:"White", colorId:1, sub:"Dropship"},
+  {qty:5, part:"4150", name:"Tile Round 2 x 2", color:"White", colorId:1, sub:"Dropship"},
+  {qty:1, part:"41765", name:"Wedge 6 x 2 Inverted Left", color:"White", colorId:1, sub:"Dropship"},
+  {qty:1, part:"41764", name:"Wedge 6 x 2 Inverted Right", color:"White", colorId:1, sub:"Dropship"},
+  {qty:10, part:"2450", name:"Wedge Plate 3 x 3 Cut Corner", color:"White", colorId:1, sub:"Dropship"},
+  {qty:16, part:"2413", name:"Wedge Plate 4 x 9 without Stud Notches", color:"White", colorId:1, sub:"Dropship"},
+  {qty:2, part:"50305", name:"Wedge Plate 8 x 3 Pentagonal Left", color:"White", colorId:1, sub:"Dropship"},
+  {qty:2, part:"50304", name:"Wedge Plate 8 x 3 Pentagonal Right", color:"White", colorId:1, sub:"Dropship"},
+  {qty:9, part:"4265c", name:"Technic Bush 1/2 Smooth", color:"Yellow", colorId:3, sub:"AT-OT"},
+  {qty:1, part:"2853", name:"Technic Engine Crankshaft", color:"Yellow", colorId:3, sub:"Dropship"},
+  {qty:4, part:"6632", name:"Technic Liftarm Thin 1 x 3 Axle Holes", color:"Yellow", colorId:3, sub:"Dropship"},
+];
+
+const TOTAL = parts.length;
+const COLOR_CSS = {
+  "Black":"#222","Blue":"#2e5ea8","Dark Blue":"#1a3a6a",
+  "Dark Bluish Gray":"#4a5260","Dark Green":"#1a4a1a","Dark Red":"#6a1a1a",
+  "Dark Tan":"#8a6a30","Light Bluish Gray":"#9ba5b5","Red":"#c02020",
+  "Reddish Brown":"#7a3a1a","Tan":"#d4a55a",
+  "Trans-Brown":"rgba(100,60,20,0.6)","White":"#f0f0f0","Yellow":"#f5c400","—":"#444"
+};
+const ALL_COLORS = ["All",...new Set(parts.map(p=>p.color))];
+const SAVE_KEY = "lego10195_counts";
+let foundCounts = {};
+let activeFilter = "all";
+let activeColor = "All";
+let activeSub = "All";
+
+function imgUrl(part,colorId){
+  return colorId===0
+    ? `https://img.bricklink.com/ItemImage/PN/0/${part}.png`
+    : `https://img.bricklink.com/ItemImage/PN/${colorId}/${part}.png`;
+}
+function loadProgress(){try{const s=localStorage.getItem(SAVE_KEY);if(s)foundCounts=JSON.parse(s);}catch{}}
+function saveProgress(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(foundCounts));}catch{}}
+function exportProgress(){
+  const b=new Blob([JSON.stringify(foundCounts)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(b);
+  a.download="republic_dropship_10195_progress.json";a.click();
+}
+function importProgress(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{try{foundCounts=JSON.parse(ev.target.result);saveProgress();buildGrid();updateProgress();applyFilters();}catch{alert("Invalid file");}};
+  r.readAsText(f);
+}
+function resetAll(){
+  if(!confirm("Reset all progress?"))return;
+  foundCounts={};saveProgress();
+  document.querySelectorAll(".card").forEach(c=>{
+    c.classList.remove("found","partial");
+    const i=c.querySelector(".counter-input");if(i)i.value=0;
+  });
+  updateProgress();applyFilters();
+}
+
+function buildColorFilters(){
+  const c=document.getElementById("color-filters");
+  ALL_COLORS.forEach(col=>{
+    const b=document.createElement("button");
+    b.className="color-pill"+(col==="All"?" active":"");
+    b.dataset.color=col;
+    if(col!=="All"){
+      const d=document.createElement("span");
+      d.className="color-dot";d.style.background=COLOR_CSS[col]||"#888";b.appendChild(d);
+    }
+    b.appendChild(document.createTextNode(col));
+    b.addEventListener("click",()=>{
+      document.querySelectorAll(".color-pill").forEach(x=>x.classList.remove("active"));
+      b.classList.add("active");activeColor=col;applyFilters();
+    });
+    c.appendChild(b);
+  });
+}
+
+function buildGrid(){
+  const grid=document.getElementById("grid");grid.innerHTML="";
+  parts.forEach((p,i)=>{
+    const cnt=foundCounts[i]||0;
+    const full=cnt>=p.qty;const partial=cnt>0&&cnt<p.qty;
+    const card=document.createElement("div");
+    card.className="card"+(full?" found":partial?" partial":"");
+    card.dataset.index=i;card.dataset.color=p.color;card.dataset.sub=p.sub;
+
+    const img=document.createElement("img");img.className="card-img";
+    img.src=imgUrl(p.part,p.colorId);img.alt=p.name;
+    img.onerror=function(){
+      if(!this.src.includes("/0/"))this.src=`https://img.bricklink.com/ItemImage/PN/0/${p.part}.png`;
+      else this.style.display="none";
+    };
+
+    const pip=document.createElement("div");
+    pip.className=`sub-pip ${p.sub}`;
+    const check=document.createElement("div");check.className="check-overlay";check.textContent="✓";
+    const partNo=document.createElement("div");partNo.className="card-part";partNo.textContent=p.part;
+    const name=document.createElement("div");name.className="card-name";name.textContent=p.name;
+
+    const footer=document.createElement("div");footer.className="card-footer";
+    const counter=document.createElement("div");counter.className="card-counter";
+    const btnM=document.createElement("button");btnM.className="counter-btn";btnM.textContent="−";
+    const input=document.createElement("input");
+    input.type="number";input.className="counter-input";input.min=0;input.max=p.qty;input.value=cnt;
+    const tot=document.createElement("span");tot.className="counter-total";tot.textContent="/"+p.qty;
+    counter.append(btnM,input,tot);
+
+    const dot=document.createElement("span");
+    dot.style.cssText=`display:inline-block;width:7px;height:7px;border-radius:50%;background:${COLOR_CSS[p.color]||"#888"};border:1px solid rgba(255,255,255,0.2);margin-right:3px;vertical-align:middle;`;
+    const badge=document.createElement("div");badge.className="color-badge";badge.appendChild(dot);
+
+    footer.append(counter,badge);
+    card.append(img,pip,check,partNo,name,footer);
+
+    function updateState(){
+      const v=Math.max(0,Math.min(p.qty,parseInt(input.value)||0));
+      input.value=v;foundCounts[i]=v;
+      card.classList.toggle("found",v>=p.qty);
+      card.classList.toggle("partial",v>0&&v<p.qty);
+      saveProgress();updateProgress();applyFilters();checkComplete();
+    }
+    card.addEventListener("click",e=>{if(e.target===input||e.target===btnM)return;input.value=Math.min(p.qty,(parseInt(input.value)||0)+1);updateState();});
+    btnM.addEventListener("click",e=>{e.stopPropagation();input.value=Math.max(0,(parseInt(input.value)||0)-1);updateState();});
+    input.addEventListener("click",e=>e.stopPropagation());
+    input.addEventListener("change",updateState);
+    input.addEventListener("input",updateState);
+    grid.appendChild(card);
+  });
+}
+
+function applyFilters(){
+  let vis=0;
+  document.querySelectorAll(".card").forEach(card=>{
+    const i=parseInt(card.dataset.index);
+    const full=card.classList.contains("found");
+    const cok=activeColor==="All"||card.dataset.color===activeColor;
+    const sok=activeSub==="All"||card.dataset.sub===activeSub||card.dataset.sub==="Both";
+    const fok=activeFilter==="all"||(activeFilter==="found"&&full)||(activeFilter==="remaining"&&!full);
+    card.classList.toggle("hidden",!(cok&&sok&&fok));
+    if(cok&&sok&&fok)vis++;
+  });
+  let empty=document.getElementById("empty-state");
+  if(vis===0){
+    if(!empty){empty=document.createElement("div");empty.id="empty-state";empty.className="empty";empty.textContent="— NO PARTS MATCH —";document.getElementById("grid").appendChild(empty);}
+  }else if(empty)empty.remove();
+}
+
+function updateProgress(){
+  const n=parts.filter((_,i)=>(foundCounts[i]||0)>=parts[i].qty).length;
+  const pcs=parts.reduce((s,p,i)=>s+(foundCounts[i]||0),0);
+  const tot=parts.reduce((s,p)=>s+p.qty,0);
+  document.getElementById("found-count").innerHTML=`${n} <span>/ ${TOTAL} types · ${pcs} / ${tot} pcs</span>`;
+  document.getElementById("progress-bar").style.width=Math.round(n/TOTAL*100)+"%";
+}
+
+function checkComplete(){
+  const n=parts.filter((_,i)=>(foundCounts[i]||0)>=parts[i].qty).length;
+  if(n===TOTAL){const b=document.getElementById("complete-banner");b.style.display="block";setTimeout(()=>b.style.display="none",5000);}
+}
+
+document.querySelectorAll(".filter-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");activeFilter=btn.dataset.filter;applyFilters();
+  });
+});
+document.querySelectorAll(".sub-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".sub-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");activeSub=btn.dataset.sub;applyFilters();
+  });
+});
+
+loadProgress();buildColorFilters();buildGrid();updateProgress();applyFilters();
+</script>
+</body>
+</html>
