@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10227 · B-wing Starfighter UCS — Parts Checklist</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #12151c;
+    --border: #252c3a;
+    --accent: #4ab4e8;
+    --accent-dim: rgba(74,180,232,0.15);
+    --accent-glow: rgba(74,180,232,0.4);
+    --text: #c8d8e8;
+    --text-dim: #5a7090;
+    --done-bg: rgba(74,180,232,0.08);
+    --done-border: #4ab4e8;
+    --partial-border: #e8b44a;
+    --partial-bg: rgba(232,180,74,0.07);
+    --card-w: 160px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'IBM Plex Mono', monospace; min-height: 100vh; }
+
+  /* ─── HEADER ─── */
+  header { padding: 28px 24px 0; max-width: 1400px; margin: 0 auto; }
+  .set-label { font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 400; letter-spacing: 0.25em; color: var(--accent); text-transform: uppercase; margin-bottom: 6px; }
+  .set-name  { font-family: 'Orbitron', sans-serif; font-size: clamp(18px, 3vw, 28px); font-weight: 900; color: #e8f4ff; letter-spacing: 0.05em; line-height: 1.1; }
+  .set-name span { color: var(--accent); }
+
+  .stats-bar { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; margin-top: 14px; }
+  .stat { font-size: 12px; color: var(--text-dim); }
+  .stat strong { font-family: 'Orbitron', sans-serif; font-size: 15px; color: var(--text); }
+
+  .progress-wrap { margin-top: 12px; background: var(--border); border-radius: 4px; height: 4px; overflow: hidden; }
+  .progress-bar  { height: 100%; background: linear-gradient(90deg, var(--accent), #7adcff); border-radius: 4px; transition: width 0.4s ease; width: 0%; }
+
+  /* ─── CONTROLS ─── */
+  .controls { padding: 18px 24px; max-width: 1400px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; border-bottom: 1px solid var(--border); }
+  .filter-group { display: flex; gap: 6px; }
+  .btn {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 5px 12px; border-radius: 4px;
+    border: 1px solid var(--border); background: var(--surface); color: var(--text-dim);
+    cursor: pointer; transition: all 0.2s; letter-spacing: 0.05em; white-space: nowrap;
+  }
+  .btn:hover  { border-color: var(--accent); color: var(--accent); }
+  .btn.active { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
+  .btn-action { border-color: #2a3a50; color: #4a7090; }
+  .btn-action:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-reset { border-color: #3a1a1a; color: #704040; }
+  .btn-reset:hover { border-color: #e84a4a; color: #e84a4a; }
+
+  .color-pill {
+    display: flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px;
+    border: 1px solid var(--border); background: var(--surface); cursor: pointer;
+    font-size: 10px; color: var(--text-dim); transition: all 0.2s; white-space: nowrap;
+  }
+  .color-pill:hover { border-color: #4a6080; color: var(--text); }
+  .color-pill.active { border-color: var(--accent); background: var(--accent-dim); color: var(--text); }
+  .color-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  .controls-sep { width: 1px; height: 24px; background: var(--border); }
+  .spacer { flex: 1; }
+
+  /* ─── GRID ─── */
+  main { padding: 20px 24px 60px; max-width: 1400px; margin: 0 auto; }
+  .parts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--card-w), 1fr));
+    gap: 10px;
+  }
+
+  /* ─── CARD ─── */
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px; cursor: pointer; transition: border-color 0.2s, opacity 0.2s, background 0.2s;
+    position: relative; user-select: none; display: flex; flex-direction: column; gap: 6px;
+  }
+  .card:hover { border-color: #3a5070; }
+  .card.partial { border-color: var(--partial-border); background: var(--partial-bg); }
+  .card.done    { border-color: var(--done-border); background: var(--done-bg); opacity: 0.65; }
+  .card.hidden  { display: none; }
+
+  .card-img-wrap { position: relative; aspect-ratio: 1; background: #0d1018; border-radius: 5px; overflow: hidden; }
+  .card-img-wrap img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
+  .card-img-wrap .done-overlay {
+    position: absolute; inset: 0; background: rgba(10,20,35,0.7); display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.25s; font-size: 28px;
+  }
+  .card.done .done-overlay { opacity: 1; }
+
+  .color-badge {
+    position: absolute; top: 5px; right: 5px; width: 9px; height: 9px;
+    border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.15);
+  }
+
+  .card-partno { font-size: 9px; color: var(--text-dim); font-family: 'Orbitron', sans-serif; letter-spacing: 0.08em; }
+  .card-name   { font-size: 10px; color: var(--text); line-height: 1.3; flex: 1; }
+
+  /* counter */
+  .card-counter { display: flex; align-items: center; gap: 4px; }
+  .cnt-btn { background: #1a2230; border: 1px solid #252c3a; color: var(--text-dim); width: 20px; height: 20px; border-radius: 3px; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; line-height: 1; transition: all 0.15s; flex-shrink: 0; }
+  .cnt-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .cnt-input {
+    font-family: 'Orbitron', monospace; font-size: 11px; font-weight: 700;
+    background: transparent; border: none; color: var(--accent);
+    width: 28px; text-align: center; outline: none;
+  }
+  .cnt-input::-webkit-inner-spin-button { display: none; }
+  .cnt-total { font-size: 10px; color: var(--text-dim); }
+
+  /* ─── BANNER ─── */
+  #banner {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: linear-gradient(135deg, #0d1f35, #0a2040);
+    border-bottom: 2px solid var(--accent); padding: 16px 24px;
+    text-align: center; font-family: 'Orbitron', sans-serif;
+    font-size: clamp(14px,2vw,20px); font-weight: 700; color: var(--accent);
+    letter-spacing: 0.15em; transform: translateY(-110%); transition: transform 0.5s ease;
+    box-shadow: 0 4px 30px rgba(74,180,232,0.3);
+  }
+  #banner.show { transform: translateY(0); }
+
+  /* ─── NO RESULTS ─── */
+  #no-results { display: none; text-align: center; padding: 60px 20px; color: var(--text-dim); font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div id="banner">⚡ HYPERDRIVE LOCKED — B-WING COMPLETE! ⚡</div>
+
+<header>
+  <div class="set-label">LEGO® UCS · Set 10227</div>
+  <div class="set-name"><span>B-wing</span> Starfighter — UCS</div>
+  <div class="stats-bar">
+    <div class="stat"><strong id="types-found">0</strong> / <strong id="types-total">0</strong> types found</div>
+    <div class="stat"><strong id="pcs-found">0</strong> / <strong id="pcs-total">0</strong> pcs</div>
+  </div>
+  <div class="progress-wrap"><div class="progress-bar" id="progress"></div></div>
+</header>
+
+<div class="controls">
+  <div class="filter-group" id="status-filter">
+    <button class="btn active" data-status="all">All</button>
+    <button class="btn" data-status="remaining">Remaining</button>
+    <button class="btn" data-status="found">Found</button>
+  </div>
+  <div class="controls-sep"></div>
+  <div class="filter-group" id="color-filter" style="flex-wrap:wrap;gap:5px;"></div>
+  <div class="spacer"></div>
+  <button class="btn btn-action" id="export-btn">Export JSON</button>
+  <button class="btn btn-action" id="import-btn">Import JSON</button>
+  <input type="file" id="import-file" accept=".json" style="display:none">
+  <button class="btn btn-reset" id="reset-btn">Reset</button>
+</div>
+
+<main>
+  <div class="parts-grid" id="grid"></div>
+  <div id="no-results">No parts match the current filter.</div>
+</main>
+
+<script>
+// ══════════════════════════════════════════════
+//  PARTS DATA  — 10227 B-wing Starfighter UCS
+// ══════════════════════════════════════════════
+const PARTS = [
+  // ── BLACK (11) ──
+  {id:"10227stk01",colorId:0,   color:"Black",       colorHex:"#1a1a1a", qty:1,  name:"Sticker Sheet for Set 10227"},
+  {id:"87615",     colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:4,  name:"Aircraft Fuselage Aft Section Curved Top 6×10"},
+  {id:"30374",     colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:6,  name:"Bar 4L (Lightsaber Blade / Wand)"},
+  {id:"63965",     colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:2,  name:"Bar 6L with Stop Ring"},
+  {id:"4735",      colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:2,  name:"Bar 1×3 with Clip and Stud Holder (Robot Arm)"},
+  {id:"48002a",    colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:2,  name:"Boat, Mast 2×2×20 with Holes and Axle Hole"},
+  {id:"3002",      colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:8,  name:"Brick 2×3"},
+  {id:"4070",      colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:2,  name:"Brick, Modified 1×1 with Headlight"},
+  {id:"87087",     colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:6,  name:"Brick, Modified 1×1 with Stud on Side"},
+  {id:"52107",     colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:1,  name:"Brick, Modified 1×2 with Studs on 2 Sides"},
+  {id:"30414",     colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:4,  name:"Brick, Modified 1×4 with Studs on Side"},
+  {id:"43121",     colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:4,  name:"Engine, Large"},
+  {id:"93575",     colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:2,  name:"Hero Factory Fist with Axle Hole – 4 Fingers"},
+  {id:"41532",     colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:2,  name:"Hinge Cylinder 1×3 Locking with 1 Finger and Pin"},
+  {id:"30383",     colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:12, name:"Hinge Plate 1×2 Locking with 1 Finger on Top"},
+  {id:"92582",     colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:2,  name:"Hinge Plate 2×2 Locking with 1 Finger on Top"},
+  {id:"2488",      colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:1,  name:"Minifigure, Weapon Whip / Plant Vine"},
+  {id:"3710",      colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:2,  name:"Plate 1×4"},
+  {id:"3666",      colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:4,  name:"Plate 1×6"},
+  {id:"2420",      colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:4,  name:"Plate 2×2 Corner"},
+  {id:"3030",      colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:2,  name:"Plate 4×10"},
+  {id:"3033",      colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:2,  name:"Plate 6×10"},
+  {id:"3027",      colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:2,  name:"Plate 6×16"},
+  {id:"60470b",    colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:8,  name:"Plate, Modified 1×2 with 2 Open O Clips (Horizontal Grip)"},
+  {id:"63868",     colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:8,  name:"Plate, Modified 1×2 with Clip on End (Horizontal Grip)"},
+  {id:"75937",     colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:1,  name:"Plate, Modified 2×2 with Bar Frame Octagonal"},
+  {id:"3176",      colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:1,  name:"Plate, Modified 2×3 with Hole"},
+  {id:"87609",     colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:4,  name:"Plate, Modified 2×6×2/3 with 4 Studs on Side"},
+  {id:"4032",      colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:1,  name:"Plate, Round 2×2 with Axle Hole"},
+  {id:"3040",      colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:1,  name:"Slope 45 2×1"},
+  {id:"3705",      colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:4,  name:"Technic, Axle 4L"},
+  {id:"3707",      colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:2,  name:"Technic, Axle 8L"},
+  {id:"3708",      colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:4,  name:"Technic, Axle 12L"},
+  {id:"3702",      colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:4,  name:"Technic, Brick 1×8 with Holes"},
+  {id:"2730",      colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:2,  name:"Technic, Brick 1×10 with Holes"},
+  {id:"32531",     colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:2,  name:"Technic, Brick 4×6 Open Center"},
+  {id:"3743",      colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:4,  name:"Technic, Gear Rack 1×4"},
+  {id:"43857",     colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:2,  name:"Technic, Liftarm Thick 1×2"},
+  {id:"32316",     colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:1,  name:"Technic, Liftarm Thick 1×5"},
+  {id:"32524",     colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:2,  name:"Technic, Liftarm Thick 1×7"},
+  {id:"32009",     colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:4,  name:"Technic, Liftarm, Modified Bent Thick 1×11.5 Double"},
+  {id:"32526",     colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:2,  name:"Technic, Liftarm, Modified Bent Thick L-Shape 3×5"},
+  {id:"60484",     colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:1,  name:"Technic, Liftarm, Modified T-Shape Thick 3×3"},
+  {id:"64782",     colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:1,  name:"Technic, Panel Plate 5×11×1"},
+  {id:"32054",     colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:6,  name:"Technic, Pin 3L with Friction Ridges and Stop Bush"},
+  {id:"2780",      colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:38, name:"Technic, Pin with Short Friction Ridges"},
+  {id:"63864",     colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:2,  name:"Tile 1×3"},
+  {id:"90498",     colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:1,  name:"Tile 8×16 with Bottom Tubes, Textured Surface"},
+  {id:"2555",      colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:8,  name:"Tile, Modified 1×1 with Clip"},
+  {id:"2412b",     colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:8,  name:"Tile, Modified 1×2 Grille with Bottom Groove"},
+  {id:"4150",      colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:1,  name:"Tile, Round 2×2"},
+  {id:"6564",      colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:1,  name:"Wedge 3×2 Right"},
+  {id:"2419",      colorId:11,  color:"Black",       colorHex:"#1a1a1a", qty:3,  name:"Wedge, Plate 3×6 Cut Corners"},
+
+  // ── BLUE (7) ──
+  {id:"3003",      colorId:7,   color:"Blue",        colorHex:"#0f52ba", qty:4,  name:"Brick 2×2"},
+  {id:"6134",      colorId:7,   color:"Blue",        colorHex:"#0f52ba", qty:2,  name:"Hinge Brick 2×2 Top Plate"},
+  {id:"3623",      colorId:7,   color:"Blue",        colorHex:"#0f52ba", qty:16, name:"Plate 1×3"},
+  {id:"3832",      colorId:7,   color:"Blue",        colorHex:"#0f52ba", qty:2,  name:"Plate 2×10"},
+  {id:"3794b",     colorId:7,   color:"Blue",        colorHex:"#0f52ba", qty:2,  name:"Plate, Modified 1×2 with 1 Stud with Groove (Jumper)"},
+  {id:"43093",     colorId:7,   color:"Blue",        colorHex:"#0f52ba", qty:8,  name:"Technic, Axle 1L with Pin with Friction Ridges"},
+  {id:"6558",      colorId:7,   color:"Blue",        colorHex:"#0f52ba", qty:15, name:"Technic, Pin 3L with Friction Ridges"},
+  {id:"3738",      colorId:7,   color:"Blue",        colorHex:"#0f52ba", qty:12, name:"Technic, Plate 2×8 with 7 Holes"},
+
+  // ── DARK BLUISH GRAY (85) ──
+  {id:"87615",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:1,  name:"Aircraft Fuselage Aft Section Curved Top 6×10"},
+  {id:"87611",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:2,  name:"Aircraft Fuselage Forward Bottom Curved 6×10 with 3 Holes"},
+  {id:"63965",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:5,  name:"Bar 6L with Stop Ring"},
+  {id:"99780",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:7,  name:"Bracket 1×2 – 1×2 Inverted"},
+  {id:"44728",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:5,  name:"Bracket 1×2 – 2×2"},
+  {id:"3003",      colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:2,  name:"Brick 2×2"},
+  {id:"2456",      colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:2,  name:"Brick 2×6"},
+  {id:"30236",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:6,  name:"Brick, Modified 1×2 with Bar Handle on Side"},
+  {id:"6249",      colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:2,  name:"Brick, Modified 2×4 with Pins"},
+  {id:"3943b",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:1,  name:"Cone 4×4×2 with Axle Hole"},
+  {id:"43898",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:1,  name:"Dish 3×3 Inverted (Radar)"},
+  {id:"3937",      colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:2,  name:"Hinge Brick 1×2 Base"},
+  {id:"30553",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:2,  name:"Hinge Cylinder 1×2 Locking with 2 Fingers and Axle Hole"},
+  {id:"44567b",    colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:1,  name:"Hinge Plate 1×2 Locking with 1 Finger on Side"},
+  {id:"44302",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:7,  name:"Hinge Plate 1×2 Locking with 2 Fingers on End"},
+  {id:"44822",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:2,  name:"Hinge Tile 1×4 Locking Dual 1 Finger on Top"},
+  {id:"44569",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:2,  name:"Hinge Train Gate 2×4 Locking Dual 2 Fingers"},
+  {id:"30162",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:2,  name:"Minifigure, Utensil Binoculars Town"},
+  {id:"3024",      colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:8,  name:"Plate 1×1"},
+  {id:"3710",      colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:2,  name:"Plate 1×4"},
+  {id:"3666",      colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:4,  name:"Plate 1×6"},
+  {id:"3460",      colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:4,  name:"Plate 1×8"},
+  {id:"3022",      colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:7,  name:"Plate 2×2"},
+  {id:"3021",      colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:4,  name:"Plate 2×3"},
+  {id:"3020",      colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:31, name:"Plate 2×4"},
+  {id:"3795",      colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:3,  name:"Plate 2×6"},
+  {id:"3035",      colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:2,  name:"Plate 4×8"},
+  {id:"3958",      colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:10, name:"Plate 6×6"},
+  {id:"41539",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:2,  name:"Plate 8×8"},
+  {id:"92438",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:1,  name:"Plate 8×16"},
+  {id:"61252",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:2,  name:"Plate, Modified 1×1 with Open O Clip"},
+  {id:"60470b",    colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:4,  name:"Plate, Modified 1×2 with 2 Open O Clips"},
+  {id:"63868",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:4,  name:"Plate, Modified 1×2 with Clip on End"},
+  {id:"3794b",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:1,  name:"Plate, Modified 1×2 with 1 Stud with Groove (Jumper)"},
+  {id:"87609",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:2,  name:"Plate, Modified 2×6×2/3 with 4 Studs on Side"},
+  {id:"2654",      colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:1,  name:"Plate, Round 2×2 with Rounded Bottom"},
+  {id:"3040",      colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:3,  name:"Slope 45 2×1"},
+  {id:"6091",      colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:2,  name:"Slope, Curved 2×1×1 1/3 with Recessed Stud"},
+  {id:"93606",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:8,  name:"Slope, Curved 4×2"},
+  {id:"50950",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:2,  name:"Slope, Curved 3×1"},
+  {id:"4519",      colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:2,  name:"Technic, Axle 3L"},
+  {id:"32073",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:1,  name:"Technic, Axle 5L"},
+  {id:"32064",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:2,  name:"Technic, Brick 1×2 with Axle Hole"},
+  {id:"32000",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:2,  name:"Technic, Brick 1×2 with Holes"},
+  {id:"3701",      colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:2,  name:"Technic, Brick 1×4 with Holes"},
+  {id:"60483",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:2,  name:"Technic, Liftarm Thick 1×2 – Axle Hole"},
+  {id:"4265c",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:2,  name:"Technic Bush 1/2 Smooth"},
+  {id:"2780",      colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:6,  name:"Technic, Pin with Short Friction Ridges"},
+  {id:"3873",      colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:12, name:"Technic, Link Tread"},
+  {id:"4274",      colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:1,  name:"Technic, Pin 1/2 without Friction Ridges"},
+  {id:"62462",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:2,  name:"Technic, Pin Connector Round 2L with Slot"},
+  {id:"85984",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:4,  name:"Slope 30 1×2×2/3"},
+  {id:"3069",      colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:2,  name:"Tile 1×2"},
+  {id:"63864",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:4,  name:"Tile 1×3"},
+  {id:"2412b",     colorId:85,  color:"Dark Bluish Gray", colorHex:"#595d6b", qty:4,  name:"Tile, Modified 1×2 Grille with Bottom Groove"},
+
+  // ── LIGHT BLUISH GRAY (86) ──
+  {id:"30374",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:8,  name:"Bar 4L (Lightsaber Blade / Wand)"},
+  {id:"99781",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:7,  name:"Bracket 1×2 – 1×2"},
+  {id:"99207",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:2,  name:"Bracket 1×2 – 2×2 Inverted"},
+  {id:"3956",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:2,  name:"Bracket 2×2 – 2×2 with 2 Holes"},
+  {id:"30414",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:2,  name:"Brick, Modified 1×4 with Studs on Side"},
+  {id:"3941",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:17, name:"Brick, Round 2×2 with Axle Hole"},
+  {id:"48092",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:4,  name:"Brick, Round Corner 4×4 Macaroni with 3 Studs"},
+  {id:"3942c",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:7,  name:"Cone 2×2×2 – Open Stud"},
+  {id:"44301b",    colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:4,  name:"Hinge Plate 1×2 Locking with 1 Finger on End"},
+  {id:"44302",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:12, name:"Hinge Plate 1×2 Locking with 2 Fingers on End"},
+  {id:"6231",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:6,  name:"Panel 1×1×1 Corner"},
+  {id:"3023",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:5,  name:"Plate 1×2"},
+  {id:"3623",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:6,  name:"Plate 1×3"},
+  {id:"3710",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:12, name:"Plate 1×4"},
+  {id:"3460",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:4,  name:"Plate 1×8"},
+  {id:"4477",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:10, name:"Plate 1×10"},
+  {id:"3022",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:8,  name:"Plate 2×2"},
+  {id:"3021",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:13, name:"Plate 2×3"},
+  {id:"3020",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:8,  name:"Plate 2×4"},
+  {id:"3795",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:2,  name:"Plate 2×6"},
+  {id:"3034",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:15, name:"Plate 2×8"},
+  {id:"3832",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:4,  name:"Plate 2×10"},
+  {id:"2445",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:4,  name:"Plate 2×12"},
+  {id:"91988",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:8,  name:"Plate 2×14"},
+  {id:"3031",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:4,  name:"Plate 4×4"},
+  {id:"3032",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:5,  name:"Plate 4×6"},
+  {id:"3035",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:2,  name:"Plate 4×8"},
+  {id:"3030",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:2,  name:"Plate 4×10"},
+  {id:"3958",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:2,  name:"Plate 6×6"},
+  {id:"3794a",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:2,  name:"Plate, Modified 1×2 with 1 Stud without Groove (Jumper)"},
+  {id:"60470",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:14, name:"Plate, Modified 1×2 with 2 U Clips (Horizontal Grip)"},
+  {id:"60478",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:10, name:"Plate, Modified 1×2 with Bar Handle on End"},
+  {id:"48336",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:2,  name:"Plate, Modified 1×2 with Bar Handle on Side – Closed Ends"},
+  {id:"99206",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:38, name:"Plate, Modified 2×2×2/3 with 2 Studs on Side"},
+  {id:"4073",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:4,  name:"Plate, Round 1×1"},
+  {id:"4032",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:7,  name:"Plate, Round 2×2 with Axle Hole"},
+  {id:"60474",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:1,  name:"Plate, Round 4×4 with Hole"},
+  {id:"30363",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:1,  name:"Slope 18 4×2"},
+  {id:"85984",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:9,  name:"Slope 30 1×2×2/3"},
+  {id:"3297",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:4,  name:"Slope 33 3×4"},
+  {id:"6191",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:4,  name:"Slope, Curved 1×4×1 1/3"},
+  {id:"6091",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:8,  name:"Slope, Curved 2×1×1 1/3 with Recessed Stud"},
+  {id:"6192b",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:7,  name:"Slope, Curved 2×4 Double with Groove"},
+  {id:"6081",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:6,  name:"Slope, Curved 2×4×1 1/3 with 4 Recessed Studs"},
+  {id:"88930",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:6,  name:"Slope, Curved 2×4×2/3 with Bottom Tubes"},
+  {id:"50950",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:2,  name:"Slope, Curved 3×1"},
+  {id:"61678",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:12, name:"Slope, Curved 4×1"},
+  {id:"93273",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:4,  name:"Slope, Curved 4×1×2/3 Double"},
+  {id:"93606",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:36, name:"Slope, Curved 4×2"},
+  {id:"2585",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:2,  name:"String Reel 2×2 Drum"},
+  {id:"4265c",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:6,  name:"Technic Bush 1/2 Smooth"},
+  {id:"32187",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:1,  name:"Technic Driving Ring Extension"},
+  {id:"4519",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:4,  name:"Technic, Axle 3L"},
+  {id:"32073",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:3,  name:"Technic, Axle 5L"},
+  {id:"60485",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:1,  name:"Technic, Axle 9L"},
+  {id:"32064",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:10, name:"Technic, Brick 1×2 with Axle Hole"},
+  {id:"32000",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:8,  name:"Technic, Brick 1×2 with Holes"},
+  {id:"3701",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:3,  name:"Technic, Brick 1×4 with Holes"},
+  {id:"32531",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:2,  name:"Technic, Brick 4×6 Open Center"},
+  {id:"60483",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:5,  name:"Technic, Liftarm Thick 1×2 – Axle Hole"},
+  {id:"3873",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:36, name:"Technic, Link Tread"},
+  {id:"4274",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:1,  name:"Technic, Pin 1/2 without Friction Ridges"},
+  {id:"62462",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:4,  name:"Technic, Pin Connector Round 2L with Slot"},
+  {id:"3069",      colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:8,  name:"Tile 1×2"},
+  {id:"63864",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:8,  name:"Tile 1×3"},
+  {id:"2412b",     colorId:86,  color:"Light Bluish Gray", colorHex:"#9ba3b2", qty:16, name:"Tile, Modified 1×2 Grille with Bottom Groove"},
+
+  // ── RED (5) ──
+  {id:"3004",      colorId:5,   color:"Red",         colorHex:"#c91111", qty:6,  name:"Brick 1×2"},
+  {id:"3002",      colorId:5,   color:"Red",         colorHex:"#c91111", qty:2,  name:"Brick 2×3"},
+  {id:"3022",      colorId:5,   color:"Red",         colorHex:"#c91111", qty:13, name:"Plate 2×2"},
+  {id:"3795",      colorId:5,   color:"Red",         colorHex:"#c91111", qty:19, name:"Plate 2×6"},
+  {id:"3032",      colorId:5,   color:"Red",         colorHex:"#c91111", qty:8,  name:"Plate 4×6"},
+  {id:"48336",     colorId:5,   color:"Red",         colorHex:"#c91111", qty:8,  name:"Plate, Modified 1×2 with Bar Handle on Side – Closed Ends"},
+
+  // ── TAN (2) ──
+  {id:"3010",      colorId:2,   color:"Tan",         colorHex:"#c2a06d", qty:5,  name:"Brick 1×4"},
+  {id:"6232",      colorId:2,   color:"Tan",         colorHex:"#c2a06d", qty:8,  name:"Brick, Modified 2×2 with Pin and Axle Hole"},
+  {id:"3941",      colorId:2,   color:"Tan",         colorHex:"#c2a06d", qty:12, name:"Brick, Round 2×2 with Axle Hole"},
+  {id:"3023",      colorId:2,   color:"Tan",         colorHex:"#c2a06d", qty:40, name:"Plate 1×2"},
+  {id:"3666",      colorId:2,   color:"Tan",         colorHex:"#c2a06d", qty:10, name:"Plate 1×6"},
+  {id:"3021",      colorId:2,   color:"Tan",         colorHex:"#c2a06d", qty:3,  name:"Plate 2×3"},
+  {id:"2654",      colorId:2,   color:"Tan",         colorHex:"#c2a06d", qty:5,  name:"Plate, Round 2×2 with Rounded Bottom (Boat Stud)"},
+  {id:"3069",      colorId:2,   color:"Tan",         colorHex:"#c2a06d", qty:3,  name:"Tile 1×2"},
+
+  // ── YELLOW (3) ──
+  {id:"3031",      colorId:3,   color:"Yellow",      colorHex:"#f5cd2f", qty:4,  name:"Plate 4×4"},
+  {id:"3035",      colorId:3,   color:"Yellow",      colorHex:"#f5cd2f", qty:6,  name:"Plate 4×8"},
+  {id:"2444",      colorId:3,   color:"Yellow",      colorHex:"#f5cd2f", qty:4,  name:"Plate, Modified 2×2 with Pin Hole"},
+  {id:"4265c",     colorId:3,   color:"Yellow",      colorHex:"#f5cd2f", qty:1,  name:"Technic Bush 1/2 Smooth"},
+
+  // ── WHITE (1) ──
+  {id:"2456",      colorId:1,   color:"White",       colorHex:"#f0f0f0", qty:2,  name:"Brick 2×6"},
+  {id:"3020",      colorId:1,   color:"White",       colorHex:"#f0f0f0", qty:9,  name:"Plate 2×4"},
+  {id:"3032",      colorId:1,   color:"White",       colorHex:"#f0f0f0", qty:6,  name:"Plate 4×6"},
+  {id:"2476",      colorId:1,   color:"White",       colorHex:"#f0f0f0", qty:2,  name:"Plate, Modified 2×2 with Pin on Bottom"},
+  {id:"32001",     colorId:1,   color:"White",       colorHex:"#f0f0f0", qty:4,  name:"Technic, Plate 2×6 with 5 Holes"},
+
+  // ── TRANS-YELLOW (19) ──
+  {id:"3023",      colorId:19,  color:"Trans-Yellow",colorHex:"#e5e500", qty:2,  name:"Plate 1×2"},
+  {id:"3069",      colorId:19,  color:"Trans-Yellow",colorHex:"#e5e500", qty:2,  name:"Tile 1×2"},
+
+  // ── TRANS-NEON ORANGE (18) ──
+  {id:"4740",      colorId:18,  color:"Trans-Neon Orange", colorHex:"#ff7000", qty:8, name:"Dish 2×2 Inverted (Radar)"},
+
+  // ── TRANS-BROWN (13) ──
+  {id:"10312pb03", colorId:13,  color:"Trans-Brown",  colorHex:"#583d1e", qty:1, name:"Windscreen 10×6×3 Bubble Canopy — B-wing Pattern"},
+
+  // ── REDDISH BROWN (88) ──
+  {id:"30136",     colorId:88,  color:"Reddish Brown", colorHex:"#7c3b12", qty:2, name:"Brick, Modified 1×2 with Log Profile"},
+  {id:"4073",      colorId:88,  color:"Reddish Brown", colorHex:"#7c3b12", qty:20,name:"Plate, Round 1×1"},
+
+  // ── ORANGE (4) ──
+  {id:"96874",     colorId:4,   color:"Orange",      colorHex:"#e86400", qty:2,  name:"Brick and Axle Separator"},
+
+  // ── PEARL GOLD (115) ──
+  {id:"64644",     colorId:115, color:"Pearl Gold",  colorHex:"#c89a3c", qty:2,  name:"Minifigure, Utensil Telescope"},
+];
+
+// ── Unique key per part+color combination
+function partKey(p) { return `${p.id}_${p.colorId}`; }
+
+// ── State
+const counts = {};
+PARTS.forEach(p => { counts[partKey(p)] = 0; });
+
+const STORAGE_KEY = 'lego10227_counts';
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(counts));
+}
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    Object.keys(d).forEach(k => { if (k in counts) counts[k] = Math.max(0, +d[k] || 0); });
+  } catch(e) {}
+}
+
+// ── Filters
+let statusFilter = 'all';
+let colorFilter  = null;
+
+// ── Colours index
+const colorsMap = {};
+PARTS.forEach(p => { if(!colorsMap[p.color]) colorsMap[p.color] = p.colorHex; });
+
+// ── Build colour pills
+function buildColorPills() {
+  const wrap = document.getElementById('color-filter');
+  // All pill
+  const allPill = document.createElement('button');
+  allPill.className = 'color-pill active';
+  allPill.dataset.color = '__all__';
+  allPill.innerHTML = `<span class="color-dot" style="background:#4ab4e8"></span>All`;
+  wrap.appendChild(allPill);
+
+  Object.entries(colorsMap).forEach(([name, hex]) => {
+    const pill = document.createElement('button');
+    pill.className = 'color-pill';
+    pill.dataset.color = name;
+    pill.innerHTML = `<span class="color-dot" style="background:${hex};border:1px solid rgba(255,255,255,0.2)"></span>${name}`;
+    wrap.appendChild(pill);
+  });
+
+  wrap.addEventListener('click', e => {
+    const pill = e.target.closest('.color-pill'); if(!pill) return;
+    wrap.querySelectorAll('.color-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    colorFilter = pill.dataset.color === '__all__' ? null : pill.dataset.color;
+    applyFilters();
+  });
+}
+
+// ── Build cards
+function buildGrid() {
+  const grid = document.getElementById('grid');
+  PARTS.forEach((p, i) => {
+    const key = partKey(p);
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.key = key;
+    card.dataset.color = p.color;
+
+    const imgSrc = `https://img.bricklink.com/ItemImage/PN/${p.colorId}/${p.id}.png`;
+    const imgFallback = `https://img.bricklink.com/ItemImage/PN/0/${p.id}.png`;
+
+    card.innerHTML = `
+      <div class="card-img-wrap">
+        <img src="${imgSrc}" alt="${p.name}" loading="lazy" onerror="this.src='${imgFallback}'">
+        <div class="done-overlay">✓</div>
+        <div class="color-badge" style="background:${p.colorHex};border:1.5px solid rgba(255,255,255,0.2)"></div>
+      </div>
+      <div class="card-partno">${p.id} · ${p.color}</div>
+      <div class="card-name">${p.name}</div>
+      <div class="card-counter">
+        <button class="cnt-btn dec">−</button>
+        <input class="cnt-input" type="number" min="0" max="${p.qty}" value="0">
+        <span class="cnt-total">/${p.qty}</span>
+        <button class="cnt-btn inc" style="margin-left:auto">+</button>
+      </div>
+    `;
+
+    // Click card body (not counter) = increment
+    card.addEventListener('click', e => {
+      if(e.target.closest('.card-counter')) return;
+      setCount(key, Math.min(p.qty, counts[key] + 1));
+    });
+
+    card.querySelector('.inc').addEventListener('click', e => {
+      e.stopPropagation();
+      setCount(key, Math.min(p.qty, counts[key] + 1));
+    });
+    card.querySelector('.dec').addEventListener('click', e => {
+      e.stopPropagation();
+      setCount(key, Math.max(0, counts[key] - 1));
+    });
+    card.querySelector('.cnt-input').addEventListener('change', e => {
+      e.stopPropagation();
+      setCount(key, Math.min(p.qty, Math.max(0, parseInt(e.target.value)||0)));
+    });
+    card.querySelector('.cnt-input').addEventListener('click', e => e.stopPropagation());
+
+    grid.appendChild(card);
+  });
+}
+
+function setCount(key, val) {
+  counts[key] = val;
+  updateCard(key);
+  updateStats();
+  save();
+}
+
+function updateCard(key) {
+  const part = PARTS.find(p => partKey(p) === key);
+  if(!part) return;
+  const card = document.querySelector(`.card[data-key="${key}"]`);
+  if(!card) return;
+  const v = counts[key];
+  card.querySelector('.cnt-input').value = v;
+  card.classList.toggle('done', v >= part.qty);
+  card.classList.toggle('partial', v > 0 && v < part.qty);
+}
+
+function updateAllCards() {
+  PARTS.forEach(p => updateCard(partKey(p)));
+}
+
+function updateStats() {
+  const totalTypes = PARTS.length;
+  const totalPcs   = PARTS.reduce((s,p) => s + p.qty, 0);
+  const foundTypes = PARTS.filter(p => counts[partKey(p)] >= p.qty).length;
+  const foundPcs   = PARTS.reduce((s,p) => s + Math.min(counts[partKey(p)], p.qty), 0);
+
+  document.getElementById('types-found').textContent = foundTypes;
+  document.getElementById('types-total').textContent = totalTypes;
+  document.getElementById('pcs-found').textContent   = foundPcs;
+  document.getElementById('pcs-total').textContent   = totalPcs;
+
+  const pct = totalPcs ? (foundPcs / totalPcs * 100) : 0;
+  document.getElementById('progress').style.width = pct + '%';
+
+  if(foundPcs === totalPcs && totalPcs > 0) showBanner();
+}
+
+let bannerTimer;
+function showBanner() {
+  const b = document.getElementById('banner');
+  b.classList.add('show');
+  clearTimeout(bannerTimer);
+  bannerTimer = setTimeout(() => b.classList.remove('show'), 5000);
+}
+
+function applyFilters() {
+  let visible = 0;
+  document.querySelectorAll('.card').forEach(card => {
+    const key   = card.dataset.key;
+    const part  = PARTS.find(p => partKey(p) === key);
+    const cnt   = counts[key];
+    const done  = cnt >= part.qty;
+
+    let show = true;
+    if(statusFilter === 'remaining' && done)   show = false;
+    if(statusFilter === 'found'    && !done)   show = false;
+    if(colorFilter && card.dataset.color !== colorFilter) show = false;
+
+    card.classList.toggle('hidden', !show);
+    if(show) visible++;
+  });
+  document.getElementById('no-results').style.display = visible ? 'none' : 'block';
+}
+
+// ── Status filter
+document.getElementById('status-filter').addEventListener('click', e => {
+  const btn = e.target.closest('[data-status]'); if(!btn) return;
+  document.querySelectorAll('[data-status]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  statusFilter = btn.dataset.status;
+  applyFilters();
+});
+
+// ── Export
+document.getElementById('export-btn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(counts, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'bwing_10227_progress.json';
+  a.click();
+});
+
+// ── Import
+document.getElementById('import-btn').addEventListener('click', () => {
+  document.getElementById('import-file').click();
+});
+document.getElementById('import-file').addEventListener('change', e => {
+  const file = e.target.files[0]; if(!file) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    try {
+      const d = JSON.parse(ev.target.result);
+      Object.keys(d).forEach(k => { if(k in counts) counts[k] = Math.max(0, +d[k]||0); });
+      updateAllCards();
+      updateStats();
+      save();
+    } catch(err) { alert('Invalid JSON file.'); }
+  };
+  r.readAsText(file);
+  e.target.value = '';
+});
+
+// ── Reset
+document.getElementById('reset-btn').addEventListener('click', () => {
+  if(!confirm('Reset all counts to zero?')) return;
+  PARTS.forEach(p => { counts[partKey(p)] = 0; });
+  updateAllCards();
+  updateStats();
+  save();
+});
+
+// ── Init
+load();
+buildColorPills();
+buildGrid();
+updateAllCards();
+updateStats();
+applyFilters();
+</script>
+</body>
+</html>
