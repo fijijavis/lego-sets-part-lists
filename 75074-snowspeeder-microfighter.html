@@ -68,6 +68,44 @@
   }
   h1 span { color: var(--accent-glow); }
 
+  .title-row {
+    display: flex; align-items: center; gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .title-row h1 { margin-bottom: 0; }
+
+  .multiplier-wrap {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 14px;
+    flex-shrink: 0;
+  }
+  .multiplier-label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px; font-weight: 700;
+    color: var(--text-dim);
+    letter-spacing: 0.18em;
+  }
+  .multiplier-input {
+    width: 54px; height: 30px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--accent-glow);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px; font-weight: 700;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.15s;
+    -moz-appearance: textfield;
+  }
+  .multiplier-input::-webkit-inner-spin-button,
+  .multiplier-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .multiplier-input:focus { border-color: var(--accent-glow); box-shadow: 0 0 8px rgba(106,176,232,0.2); }
+
   .progress-row {
     display: flex; align-items: center; gap: 16px;
     flex-wrap: wrap;
@@ -344,7 +382,13 @@
 <header>
   <div class="header-inner">
     <div class="set-badge">★ Star Wars Microfighters Series 2 · Set 75074</div>
-    <h1><span>❄</span> SNOWSPEEDER</h1>
+    <div class="title-row">
+      <h1><span>❄</span> SNOWSPEEDER</h1>
+      <div class="multiplier-wrap">
+        <label class="multiplier-label" for="multiplier">SETS</label>
+        <input id="multiplier" class="multiplier-input" type="number" min="1" max="999" value="1">
+      </div>
+    </div>
     <div class="progress-row">
       <div class="progress-counters">
         <span class="hi" id="found-types">0</span><span> / </span><span id="total-types">42</span><span> types · </span>
@@ -389,6 +433,11 @@
 
 <script>
 const STORAGE_KEY = 'lego75074_counts';
+const STORAGE_KEY_MULT = 'lego75074_multiplier';
+
+// ── MULTIPLIER ───────────────────────────────────────────────────
+let multiplier = 1;
+function effectiveQty(part) { return part.qty * multiplier; }
 
 // ── COLOUR METADATA ──────────────────────────────────────────────
 const COLORS = {
@@ -471,10 +520,13 @@ function loadState() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) counts = JSON.parse(saved);
+    const savedMult = localStorage.getItem(STORAGE_KEY_MULT);
+    if (savedMult) multiplier = Math.max(1, parseInt(savedMult) || 1);
   } catch(e) {}
 }
 function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(counts));
+  localStorage.setItem(STORAGE_KEY_MULT, String(multiplier));
 }
 function getCount(id) { return counts[id] || 0; }
 
@@ -538,8 +590,8 @@ function buildGrid() {
         <div class="part-name">${part.name}</div>
         <div class="counter-row">
           <button class="cnt-btn dec-btn" title="Decrease">−</button>
-          <input class="cnt-input" type="number" min="0" max="${part.qty}" value="${getCount(part.id)}">
-          <span class="cnt-total">/ ${part.qty}</span>
+          <input class="cnt-input" type="number" min="0" max="${effectiveQty(part)}" value="${getCount(part.id)}">
+          <span class="cnt-total">/ <span class="total-val">${effectiveQty(part)}</span></span>
           <button class="cnt-btn inc-btn" title="Increase" style="margin-left:auto">+</button>
         </div>
       </div>`;
@@ -555,7 +607,7 @@ function buildGrid() {
     inp.addEventListener('change', e => {
       e.stopPropagation();
       let v = parseInt(inp.value) || 0;
-      v = Math.max(0, Math.min(v, part.qty));
+      v = Math.max(0, Math.min(v, effectiveQty(part)));
       counts[part.id] = v;
       inp.value = v;
       updateCard(card, part);
@@ -571,7 +623,7 @@ function buildGrid() {
 
 function increment(part, card) {
   const cur = getCount(part.id);
-  if (cur >= part.qty) return;
+  if (cur >= effectiveQty(part)) return;
   counts[part.id] = cur + 1;
   card.querySelector('.cnt-input').value = cur + 1;
   updateCard(card, part);
@@ -590,10 +642,13 @@ function decrement(part, card) {
 
 function updateCard(card, part) {
   const c = getCount(part.id);
+  const eq = effectiveQty(part);
   card.classList.remove('done','partial');
-  if (c >= part.qty) card.classList.add('done');
-  else if (c > 0)    card.classList.add('partial');
+  if (c >= eq)    card.classList.add('done');
+  else if (c > 0) card.classList.add('partial');
   card.querySelector('.cnt-input').value = c;
+  card.querySelector('.cnt-input').max = eq;
+  card.querySelector('.total-val').textContent = eq;
   applyCardVisibility(card);
 }
 
@@ -604,8 +659,7 @@ function applyFilters() {
     const id = card.dataset.id;
     const part = PARTS.find(p => p.id === id);
     const c = getCount(id);
-    const isDone = c >= part.qty;
-    const isPartial = c > 0 && !isDone;
+    const isDone = c >= effectiveQty(part);
 
     let show = true;
     if (statusFilter === 'remaining' && isDone) show = false;
@@ -616,7 +670,6 @@ function applyFilters() {
     if (show) anyVisible = true;
   });
 
-  // empty state
   let empty = document.querySelector('.empty-state');
   if (!anyVisible) {
     if (!empty) {
@@ -629,11 +682,10 @@ function applyFilters() {
 }
 
 function applyCardVisibility(card) {
-  // re-apply current filter logic to one card
   const id = card.dataset.id;
   const part = PARTS.find(p => p.id === id);
   const c = getCount(id);
-  const isDone = c >= part.qty;
+  const isDone = c >= effectiveQty(part);
 
   let show = true;
   if (statusFilter === 'remaining' && isDone) show = false;
@@ -645,15 +697,18 @@ function applyCardVisibility(card) {
 // ── PROGRESS ────────────────────────────────────────────────────
 let completionShown = false;
 function updateProgress() {
+  const totalPcs = PARTS.reduce((s, p) => s + effectiveQty(p), 0);
   let foundTypes = 0, foundPcs = 0;
   PARTS.forEach(p => {
     const c = getCount(p.id);
-    if (c >= p.qty) foundTypes++;
-    foundPcs += Math.min(c, p.qty);
+    const eq = effectiveQty(p);
+    if (c >= eq) foundTypes++;
+    foundPcs += Math.min(c, eq);
   });
   document.getElementById('found-types').textContent = foundTypes;
   document.getElementById('found-pcs').textContent   = foundPcs;
-  document.getElementById('progress-bar').style.width = (foundPcs / TOTAL_PCS * 100) + '%';
+  document.getElementById('total-pcs').textContent   = totalPcs;
+  document.getElementById('progress-bar').style.width = (foundPcs / totalPcs * 100) + '%';
 
   if (foundTypes === TOTAL_TYPES && !completionShown) {
     completionShown = true;
