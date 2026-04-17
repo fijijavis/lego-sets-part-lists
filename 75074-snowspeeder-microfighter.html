@@ -768,6 +768,26 @@ document.getElementById('reset-btn').addEventListener('click', () => {
   completionShown = false;
 });
 
+// ── MULTIPLIER INPUT ─────────────────────────────────────────────
+const multInput = document.getElementById('multiplier');
+multInput.addEventListener('change', () => {
+  multiplier = Math.max(1, parseInt(multInput.value) || 1);
+  multInput.value = multiplier;
+  // Clamp all counts to new effective totals
+  PARTS.forEach(p => {
+    const eq = effectiveQty(p);
+    if ((counts[p.id] || 0) > eq) counts[p.id] = eq;
+  });
+  saveState();
+  document.querySelectorAll('.part-card').forEach(card => {
+    const part = PARTS.find(p => p.id === card.dataset.id);
+    if (part) updateCard(card, part);
+  });
+  updateProgress();
+  applyFilters();
+  completionShown = false;
+});
+
 // ── STATUS FILTER BUTTONS ────────────────────────────────────────
 document.querySelectorAll('[data-status]').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -779,8 +799,8 @@ document.querySelectorAll('[data-status]').forEach(btn => {
 
 // ── INIT ────────────────────────────────────────────────────────
 document.getElementById('total-types').textContent = TOTAL_TYPES;
-document.getElementById('total-pcs').textContent   = TOTAL_PCS;
 loadState();
+document.getElementById('multiplier').value = multiplier;
 buildColorFilters();
 buildGrid();
 updateProgress();
