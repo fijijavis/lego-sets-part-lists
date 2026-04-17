@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>75074 Snowspeeder — Parts Checklist</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #12151c;
+    --surface2: #181c26;
+    --border: #252c3a;
+    --accent: #e8f4ff;
+    --accent-main: #b8d9f5;
+    --accent-glow: #6ab0e8;
+    --text: #d4dce8;
+    --text-dim: #6a7a8e;
+    --amber: #e8a030;
+    --done: #4ab870;
+    --done-dim: #1e3828;
+    --partial-dim: #2e2010;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    min-height: 100vh;
+  }
+
+  /* ── SNOWFLAKE BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(106,176,232,0.04) 0%, transparent 50%),
+      radial-gradient(circle at 85% 80%, rgba(184,217,245,0.03) 0%, transparent 50%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: relative; z-index: 1;
+    background: linear-gradient(180deg, #0d1520 0%, var(--surface) 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 24px 20px;
+  }
+  .header-inner { max-width: 1300px; margin: 0 auto; }
+  .set-badge {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px; font-weight: 700;
+    color: var(--accent-glow);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    opacity: 0.8;
+  }
+  h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.5rem, 4vw, 2.4rem);
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 0.04em;
+    line-height: 1.1;
+    text-shadow: 0 0 30px rgba(106,176,232,0.3);
+    margin-bottom: 18px;
+  }
+  h1 span { color: var(--accent-glow); }
+
+  .progress-row {
+    display: flex; align-items: center; gap: 16px;
+    flex-wrap: wrap;
+  }
+  .progress-counters {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px; font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+  .progress-counters .hi { color: var(--accent-glow); }
+  .progress-bar-wrap {
+    flex: 1; min-width: 180px;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-glow), #9fd4f8);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+    width: 0%;
+    box-shadow: 0 0 8px rgba(106,176,232,0.5);
+  }
+
+  /* ── CONTROLS ── */
+  .controls {
+    position: relative; z-index: 1;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+  }
+  .controls-inner {
+    max-width: 1300px; margin: 0 auto;
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+  }
+  .filter-group { display: flex; gap: 6px; align-items: center; }
+  .filter-label {
+    font-size: 10px; letter-spacing: 0.12em;
+    color: var(--text-dim); text-transform: uppercase;
+    margin-right: 2px;
+  }
+  .filter-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 5px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .filter-btn:hover { border-color: var(--accent-glow); color: var(--accent-glow); }
+  .filter-btn.active {
+    background: rgba(106,176,232,0.12);
+    border-color: var(--accent-glow);
+    color: var(--accent-glow);
+  }
+  .color-pill {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 4px 10px 4px 7px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; gap: 5px;
+    white-space: nowrap;
+  }
+  .color-pill:hover { border-color: #555; color: var(--text); }
+  .color-pill.active { border-color: #aaa; color: var(--text); background: rgba(255,255,255,0.06); }
+  .color-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+  .controls-right { margin-left: auto; display: flex; gap: 8px; }
+  .ctrl-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    padding: 5px 11px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.05em;
+  }
+  .ctrl-btn:hover { border-color: var(--accent-glow); color: var(--accent-glow); }
+  .ctrl-btn.danger:hover { border-color: #e85050; color: #e85050; }
+
+  /* ── GRID ── */
+  main {
+    position: relative; z-index: 1;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+  .parts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 14px;
+  }
+
+  /* ── PART CARD ── */
+  .part-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.1s, opacity 0.3s;
+    position: relative;
+    user-select: none;
+  }
+  .part-card:hover { border-color: #3d4f66; transform: translateY(-1px); }
+  .part-card.partial { border-color: var(--amber); background: #161208; }
+  .part-card.done {
+    border-color: var(--done);
+    background: var(--done-dim);
+    opacity: 0.65;
+  }
+  .part-card.hidden { display: none; }
+
+  /* image zone */
+  .card-img-wrap {
+    background: #0e1119;
+    aspect-ratio: 1;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .card-img-wrap img {
+    max-width: 80%; max-height: 80%;
+    object-fit: contain;
+    image-rendering: pixelated;
+  }
+  .done-overlay {
+    display: none;
+    position: absolute; inset: 0;
+    background: rgba(30,56,40,0.55);
+    align-items: center; justify-content: center;
+    font-size: 2.2rem;
+  }
+  .part-card.done .done-overlay { display: flex; }
+
+  /* colour pip in corner of image */
+  .color-pip {
+    position: absolute; top: 6px; right: 6px;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.4);
+    box-shadow: 0 0 4px rgba(0,0,0,0.5);
+  }
+
+  /* card body */
+  .card-body {
+    padding: 9px 10px 10px;
+  }
+  .part-num {
+    font-size: 10px; font-weight: 500;
+    color: var(--accent-glow);
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+  }
+  .part-name {
+    font-size: 10px; color: var(--text-dim);
+    line-height: 1.35;
+    margin-bottom: 8px;
+    min-height: 27px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .part-card.done .part-name { color: var(--done); opacity: 0.7; }
+
+  .counter-row {
+    display: flex; align-items: center; gap: 5px;
+  }
+  .cnt-btn {
+    width: 22px; height: 22px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-dim);
+    font-size: 14px; line-height: 1;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.12s;
+    flex-shrink: 0;
+  }
+  .cnt-btn:hover { border-color: var(--accent-glow); color: var(--accent-glow); }
+  .cnt-input {
+    width: 34px; height: 22px;
+    background: #0a0c10;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px; font-weight: 600;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .cnt-input:focus { border-color: var(--accent-glow); }
+  .part-card.done .cnt-input { color: var(--done); }
+  .cnt-total {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.03em;
+    flex-shrink: 0;
+  }
+  .part-card.done .cnt-total { color: var(--done); }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 0;
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+
+  /* ── COMPLETION BANNER ── */
+  #completion-banner {
+    display: none;
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #0d1a2a, #0e2318);
+    border: 2px solid var(--done);
+    border-radius: 12px;
+    padding: 30px 48px;
+    text-align: center;
+    z-index: 1000;
+    box-shadow: 0 0 60px rgba(74,184,112,0.35), 0 0 120px rgba(74,184,112,0.15);
+    animation: bannerPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes bannerPop {
+    from { transform: translate(-50%, -50%) scale(0.7); opacity: 0; }
+    to   { transform: translate(-50%, -50%) scale(1);   opacity: 1; }
+  }
+  #completion-banner .banner-icon { font-size: 3rem; margin-bottom: 10px; }
+  #completion-banner .banner-text {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1rem, 3vw, 1.5rem);
+    font-weight: 700;
+    color: var(--done);
+    letter-spacing: 0.06em;
+    text-shadow: 0 0 20px rgba(74,184,112,0.5);
+  }
+  #completion-banner .banner-sub {
+    font-size: 11px; color: var(--text-dim);
+    margin-top: 6px; letter-spacing: 0.08em;
+  }
+
+  /* ── HIDDEN FILE INPUT ── */
+  #import-input { display: none; }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="set-badge">★ Star Wars Microfighters Series 2 · Set 75074</div>
+    <h1><span>❄</span> SNOWSPEEDER</h1>
+    <div class="progress-row">
+      <div class="progress-counters">
+        <span class="hi" id="found-types">0</span><span> / </span><span id="total-types">42</span><span> types · </span>
+        <span class="hi" id="found-pcs">0</span><span> / </span><span id="total-pcs">94</span><span> pcs</span>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progress-bar"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="controls-inner">
+    <div class="filter-group">
+      <span class="filter-label">Show</span>
+      <button class="filter-btn active" data-status="all">All</button>
+      <button class="filter-btn" data-status="remaining">Remaining</button>
+      <button class="filter-btn" data-status="found">Found</button>
+    </div>
+    <div class="filter-group" id="color-filters" style="flex-wrap:wrap;gap:5px;">
+      <span class="filter-label">Colour</span>
+    </div>
+    <div class="controls-right">
+      <button class="ctrl-btn" id="export-btn">Export JSON</button>
+      <button class="ctrl-btn" id="import-btn">Import JSON</button>
+      <input type="file" id="import-input" accept=".json">
+      <button class="ctrl-btn danger" id="reset-btn">Reset</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="parts-grid" id="parts-grid"></div>
+</main>
+
+<div id="completion-banner">
+  <div class="banner-icon">🏔️</div>
+  <div class="banner-text">ALL PARTS ACCOUNTED FOR —<br>BUILD YOUR SNOWSPEEDER!</div>
+  <div class="banner-sub">HOTH AWAITS, PILOT</div>
+</div>
+
+<script>
+const STORAGE_KEY = 'lego75074_counts';
+
+// ── COLOUR METADATA ──────────────────────────────────────────────
+const COLORS = {
+  11:  { name: 'Black',           hex: '#1a1a1a' },
+  85:  { name: 'Dark Bluish Gray',hex: '#4a5468' },
+  69:  { name: 'Dark Tan',        hex: '#8c7a5a' },
+  86:  { name: 'Light Bluish Gray',hex:'#a0adb8' },
+  4:   { name: 'Orange',          hex: '#e8630a' },
+  2:   { name: 'Tan',             hex: '#d4b878' },
+  13:  { name: 'Trans-Brown',     hex: '#6b4422' },
+  17:  { name: 'Trans-Red',       hex: '#c0182a' },
+  1:   { name: 'White',           hex: '#e8ecf0' },
+};
+
+// ── PARTS DATA (Regular Items only) ─────────────────────────────
+const PARTS = [
+  // Black
+  { id:'99207-11',  partNo:'99207',    colorId:11, qty:2,  name:'Bracket 1×2–2×2 Inverted' },
+  { id:'92738-11',  partNo:'92738',    colorId:11, qty:1,  name:'Blaster SW Small w/ Scope' },
+  { id:'3795-11',   partNo:'3795',     colorId:11, qty:1,  name:'Plate 2×6' },
+  { id:'3743-11',   partNo:'3743',     colorId:11, qty:2,  name:'Technic Gear Rack 1×4' },
+  // Dark Bluish Gray
+  { id:'3023-85',   partNo:'3023',     colorId:85, qty:3,  name:'Plate 1×2' },
+  { id:'3031-85',   partNo:'3031',     colorId:85, qty:1,  name:'Plate 4×4' },
+  { id:'15535-85',  partNo:'15535',    colorId:85, qty:2,  name:'Tile Round 2×2 w/ Hole' },
+  // Dark Tan
+  { id:'6587-69',   partNo:'6587',     colorId:69, qty:2,  name:'Technic Axle 3L w/ Stud' },
+  // Light Bluish Gray
+  { id:'4592c02-86',partNo:'4592c02',  colorId:86, qty:1,  name:'Antenna Small Base w/ Black Lever' },
+  { id:'87087-86',  partNo:'87087',    colorId:86, qty:2,  name:'Brick Modified 1×1 Stud on Side' },
+  { id:'92947-86',  partNo:'92947',    colorId:86, qty:2,  name:'Brick Round 2×2 Axle Hole Grille' },
+  { id:'4589b-86',  partNo:'4589b',    colorId:86, qty:2,  name:'Cone 1×1 w/ Top Groove' },
+  { id:'60471-86',  partNo:'60471',    colorId:86, qty:4,  name:'Hinge Plate 1×2 Lock 2 Fingers' },
+  { id:'44568-86',  partNo:'44568',    colorId:86, qty:2,  name:'Hinge Plate 1×4 Lock Dual 1 Finger' },
+  { id:'3024-86',   partNo:'3024',     colorId:86, qty:4,  name:'Plate 1×1' },
+  { id:'3020-86',   partNo:'3020',     colorId:86, qty:3,  name:'Plate 2×4' },
+  { id:'4085d-86',  partNo:'4085d',    colorId:86, qty:2,  name:'Plate Modified 1×1 Open O Clip Thick' },
+  { id:'15573-86',  partNo:'15573',    colorId:86, qty:1,  name:'Plate Modified 1×2 Jumper' },
+  { id:'18677-86',  partNo:'18677',    colorId:86, qty:2,  name:'Plate Modified 1×2 Pin Hole Bottom' },
+  { id:'92593-86',  partNo:'92593',    colorId:86, qty:2,  name:'Plate Modified 1×4 2 Studs No Groove' },
+  { id:'4032-86',   partNo:'4032',     colorId:86, qty:2,  name:'Plate Round 2×2 w/ Axle Hole' },
+  { id:'92946-86',  partNo:'92946',    colorId:86, qty:4,  name:'Slope 45 2×1 w/ 2/3 Cutout' },
+  { id:'61184-86',  partNo:'61184',    colorId:86, qty:4,  name:'Technic Pin ½ w/ 2L Bar (Flick Missile)' },
+  { id:'32054-86',  partNo:'32054',    colorId:86, qty:2,  name:'Technic Pin 3L Friction Ridges Stop Bush' },
+  { id:'42610-86',  partNo:'42610',    colorId:86, qty:2,  name:'Wheel 11mm D.×8mm 4 Spokes' },
+  // Orange
+  { id:'3021-4',    partNo:'3021',     colorId:4,  qty:1,  name:'Plate 2×3' },
+  { id:'54200-4',   partNo:'54200',    colorId:4,  qty:4,  name:'Slope 30 1×1×2/3' },
+  // Tan
+  { id:'3022-2',    partNo:'3022',     colorId:2,  qty:1,  name:'Plate 2×2' },
+  // Trans-Brown
+  { id:'54200-13',  partNo:'54200',    colorId:13, qty:4,  name:'Slope 30 1×1×2/3' },
+  // Trans-Red
+  { id:'4589b-17',  partNo:'4589b',    colorId:17, qty:2,  name:'Cone 1×1 w/ Top Groove' },
+  // White
+  { id:'3023-1',    partNo:'3023',     colorId:1,  qty:1,  name:'Plate 1×2' },
+  { id:'3710-1',    partNo:'3710',     colorId:1,  qty:6,  name:'Plate 1×4' },
+  { id:'54200-1',   partNo:'54200',    colorId:1,  qty:6,  name:'Slope 30 1×1×2/3' },
+  { id:'85984-1',   partNo:'85984',    colorId:1,  qty:2,  name:'Slope 30 1×2×2/3' },
+  { id:'3298pb050-1',partNo:'3298pb050',colorId:1, qty:1,  name:'Slope 33 3×2 Snowspeeder Front Print' },
+  { id:'6541-1',    partNo:'6541',     colorId:1,  qty:4,  name:'Technic Brick 1×1 w/ Hole' },
+  { id:'51739-1',   partNo:'51739',    colorId:1,  qty:2,  name:'Wedge Plate 2×4' },
+  { id:'43723-1',   partNo:'43723',    colorId:1,  qty:1,  name:'Wedge Plate 3×2 Left' },
+  { id:'43722-1',   partNo:'43722',    colorId:1,  qty:1,  name:'Wedge Plate 3×2 Right' },
+  { id:'54384-1',   partNo:'54384',    colorId:1,  qty:1,  name:'Wedge Plate 6×3 Left' },
+  { id:'54383-1',   partNo:'54383',    colorId:1,  qty:1,  name:'Wedge Plate 6×3 Right' },
+  // Minifigure
+  { id:'sw0607-0',  partNo:'sw0607',   colorId:0,  qty:1,  name:'Snowspeeder Pilot (LBG Helmet)', isFig:true },
+];
+
+const TOTAL_TYPES = PARTS.length;
+const TOTAL_PCS   = PARTS.reduce((s, p) => s + p.qty, 0);
+
+// ── STATE ────────────────────────────────────────────────────────
+let counts = {};
+let statusFilter = 'all';
+let colorFilter  = 'all';
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) counts = JSON.parse(saved);
+  } catch(e) {}
+}
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(counts));
+}
+function getCount(id) { return counts[id] || 0; }
+
+// ── DOM HELPERS ──────────────────────────────────────────────────
+function imgUrl(partNo, colorId) {
+  return `https://img.bricklink.com/ItemImage/PN/${colorId}/${partNo}.png`;
+}
+
+// ── BUILD COLOUR FILTERS ─────────────────────────────────────────
+function buildColorFilters() {
+  const container = document.getElementById('color-filters');
+  const usedColors = [...new Set(PARTS.map(p => p.colorId))];
+  usedColors.sort((a,b) => (COLORS[a]?.name||'').localeCompare(COLORS[b]?.name||''));
+
+  const allBtn = document.createElement('button');
+  allBtn.className = 'color-pill active'; allBtn.dataset.color = 'all';
+  allBtn.textContent = 'All';
+  container.appendChild(allBtn);
+
+  usedColors.forEach(cid => {
+    const info = COLORS[cid] || { name: `Color ${cid}`, hex: '#888' };
+    const btn = document.createElement('button');
+    btn.className = 'color-pill'; btn.dataset.color = cid;
+    btn.innerHTML = `<span class="color-dot" style="background:${info.hex}"></span>${info.name}`;
+    container.appendChild(btn);
+  });
+
+  container.addEventListener('click', e => {
+    const btn = e.target.closest('.color-pill');
+    if (!btn) return;
+    colorFilter = btn.dataset.color;
+    container.querySelectorAll('.color-pill').forEach(b => b.classList.toggle('active', b === btn));
+    applyFilters();
+  });
+}
+
+// ── BUILD GRID ───────────────────────────────────────────────────
+function buildGrid() {
+  const grid = document.getElementById('parts-grid');
+  grid.innerHTML = '';
+
+  PARTS.forEach(part => {
+    const colorInfo = COLORS[part.colorId] || { name: `Color ${part.colorId}`, hex: '#888' };
+    const card = document.createElement('div');
+    card.className = 'part-card';
+    card.dataset.id = part.id;
+    card.dataset.color = part.colorId;
+
+    const imgSrc = imgUrl(part.partNo, part.colorId);
+    const fallback = imgUrl(part.partNo, 0);
+
+    card.innerHTML = `
+      <div class="card-img-wrap">
+        <img src="${imgSrc}" alt="${part.name}"
+          onerror="if(this.src!=='${fallback}')this.src='${fallback}'">
+        <div class="done-overlay">✓</div>
+        <div class="color-pip" style="background:${colorInfo.hex}" title="${colorInfo.name}"></div>
+      </div>
+      <div class="card-body">
+        <div class="part-num">${part.partNo}</div>
+        <div class="part-name">${part.name}</div>
+        <div class="counter-row">
+          <button class="cnt-btn dec-btn" title="Decrease">−</button>
+          <input class="cnt-input" type="number" min="0" max="${part.qty}" value="${getCount(part.id)}">
+          <span class="cnt-total">/ ${part.qty}</span>
+          <button class="cnt-btn inc-btn" title="Increase" style="margin-left:auto">+</button>
+        </div>
+      </div>`;
+
+    // click card body to increment (not buttons/input)
+    card.querySelector('.card-img-wrap').addEventListener('click', () => increment(part, card));
+    card.querySelector('.part-name').addEventListener('click', () => increment(part, card));
+
+    card.querySelector('.inc-btn').addEventListener('click', e => { e.stopPropagation(); increment(part, card); });
+    card.querySelector('.dec-btn').addEventListener('click', e => { e.stopPropagation(); decrement(part, card); });
+
+    const inp = card.querySelector('.cnt-input');
+    inp.addEventListener('change', e => {
+      e.stopPropagation();
+      let v = parseInt(inp.value) || 0;
+      v = Math.max(0, Math.min(v, part.qty));
+      counts[part.id] = v;
+      inp.value = v;
+      updateCard(card, part);
+      updateProgress();
+      saveState();
+    });
+    inp.addEventListener('click', e => e.stopPropagation());
+
+    updateCard(card, part);
+    grid.appendChild(card);
+  });
+}
+
+function increment(part, card) {
+  const cur = getCount(part.id);
+  if (cur >= part.qty) return;
+  counts[part.id] = cur + 1;
+  card.querySelector('.cnt-input').value = cur + 1;
+  updateCard(card, part);
+  updateProgress();
+  saveState();
+}
+function decrement(part, card) {
+  const cur = getCount(part.id);
+  if (cur <= 0) return;
+  counts[part.id] = cur - 1;
+  card.querySelector('.cnt-input').value = cur - 1;
+  updateCard(card, part);
+  updateProgress();
+  saveState();
+}
+
+function updateCard(card, part) {
+  const c = getCount(part.id);
+  card.classList.remove('done','partial');
+  if (c >= part.qty) card.classList.add('done');
+  else if (c > 0)    card.classList.add('partial');
+  card.querySelector('.cnt-input').value = c;
+  applyCardVisibility(card);
+}
+
+// ── FILTERS ──────────────────────────────────────────────────────
+function applyFilters() {
+  let anyVisible = false;
+  document.querySelectorAll('.part-card').forEach(card => {
+    const id = card.dataset.id;
+    const part = PARTS.find(p => p.id === id);
+    const c = getCount(id);
+    const isDone = c >= part.qty;
+    const isPartial = c > 0 && !isDone;
+
+    let show = true;
+    if (statusFilter === 'remaining' && isDone) show = false;
+    if (statusFilter === 'found' && !isDone)    show = false;
+    if (colorFilter !== 'all' && String(card.dataset.color) !== String(colorFilter)) show = false;
+
+    card.classList.toggle('hidden', !show);
+    if (show) anyVisible = true;
+  });
+
+  // empty state
+  let empty = document.querySelector('.empty-state');
+  if (!anyVisible) {
+    if (!empty) {
+      empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.textContent = 'No parts match the current filter.';
+      document.getElementById('parts-grid').appendChild(empty);
+    }
+  } else if (empty) empty.remove();
+}
+
+function applyCardVisibility(card) {
+  // re-apply current filter logic to one card
+  const id = card.dataset.id;
+  const part = PARTS.find(p => p.id === id);
+  const c = getCount(id);
+  const isDone = c >= part.qty;
+
+  let show = true;
+  if (statusFilter === 'remaining' && isDone) show = false;
+  if (statusFilter === 'found' && !isDone)    show = false;
+  if (colorFilter !== 'all' && String(card.dataset.color) !== String(colorFilter)) show = false;
+  card.classList.toggle('hidden', !show);
+}
+
+// ── PROGRESS ────────────────────────────────────────────────────
+let completionShown = false;
+function updateProgress() {
+  let foundTypes = 0, foundPcs = 0;
+  PARTS.forEach(p => {
+    const c = getCount(p.id);
+    if (c >= p.qty) foundTypes++;
+    foundPcs += Math.min(c, p.qty);
+  });
+  document.getElementById('found-types').textContent = foundTypes;
+  document.getElementById('found-pcs').textContent   = foundPcs;
+  document.getElementById('progress-bar').style.width = (foundPcs / TOTAL_PCS * 100) + '%';
+
+  if (foundTypes === TOTAL_TYPES && !completionShown) {
+    completionShown = true;
+    showBanner();
+  } else if (foundTypes < TOTAL_TYPES) {
+    completionShown = false;
+  }
+}
+
+function showBanner() {
+  const banner = document.getElementById('completion-banner');
+  banner.style.display = 'block';
+  setTimeout(() => { banner.style.display = 'none'; }, 5000);
+}
+
+// ── EXPORT / IMPORT / RESET ──────────────────────────────────────
+document.getElementById('export-btn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(counts, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'snowspeeder_75074_progress.json';
+  a.click();
+});
+
+document.getElementById('import-btn').addEventListener('click', () => {
+  document.getElementById('import-input').click();
+});
+document.getElementById('import-input').addEventListener('change', e => {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      counts = JSON.parse(ev.target.result);
+      saveState();
+      document.querySelectorAll('.part-card').forEach(card => {
+        const part = PARTS.find(p => p.id === card.dataset.id);
+        if (part) updateCard(card, part);
+      });
+      updateProgress();
+      applyFilters();
+    } catch(err) { alert('Invalid JSON file.'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+document.getElementById('reset-btn').addEventListener('click', () => {
+  if (!confirm('Reset all counts to zero?')) return;
+  counts = {};
+  saveState();
+  document.querySelectorAll('.part-card').forEach(card => {
+    const part = PARTS.find(p => p.id === card.dataset.id);
+    if (part) updateCard(card, part);
+  });
+  updateProgress();
+  applyFilters();
+  completionShown = false;
+});
+
+// ── STATUS FILTER BUTTONS ────────────────────────────────────────
+document.querySelectorAll('[data-status]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    statusFilter = btn.dataset.status;
+    document.querySelectorAll('[data-status]').forEach(b => b.classList.toggle('active', b === btn));
+    applyFilters();
+  });
+});
+
+// ── INIT ────────────────────────────────────────────────────────
+document.getElementById('total-types').textContent = TOTAL_TYPES;
+document.getElementById('total-pcs').textContent   = TOTAL_PCS;
+loadState();
+buildColorFilters();
+buildGrid();
+updateProgress();
+</script>
+</body>
+</html>
