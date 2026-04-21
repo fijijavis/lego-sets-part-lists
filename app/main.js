@@ -16,11 +16,10 @@ const isMain = process.argv[1] === fileURLToPath(import.meta.url);
 
 if (isMain) {
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
-  const ROOT       = path.resolve(__dirname, '..');
-  const DATA_DIR   = path.join(ROOT, 'data');
-  const DIST_DIR   = path.join(ROOT, 'dist');
-  const STATIC_DIR = path.join(ROOT, 'static');
-  const TEMPLATE   = path.join(ROOT, 'template', 'checklist.html');
+  const ROOT      = path.resolve(__dirname, '..');
+  const DATA_DIR  = path.join(ROOT, 'data');
+  const DIST_DIR  = path.join(ROOT, 'dist');
+  const TEMPLATE  = path.join(ROOT, 'template', 'checklist.html');
 
   if (!fs.existsSync(DIST_DIR)) fs.mkdirSync(DIST_DIR, { recursive: true });
 
@@ -45,14 +44,5 @@ if (isMain) {
 
   buildIndex(DIST_DIR, sets);
   console.log(`  built: dist/index.html (${sets.length} sets)`);
-
-  if (fs.existsSync(STATIC_DIR)) {
-    const staticFiles = fs.readdirSync(STATIC_DIR);
-    for (const file of staticFiles) {
-      fs.copyFileSync(path.join(STATIC_DIR, file), path.join(DIST_DIR, file));
-      console.log(`  copied: dist/${file}`);
-    }
-  }
-
   console.log(`\nDone — ${sets.length + 1} files written to dist/`);
 }
