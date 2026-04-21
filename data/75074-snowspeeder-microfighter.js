@@ -3,6 +3,7 @@ export default {
   name: "Snowspeeder Microfighter",
   accentColor: "#6ab0e8",
   storageKey: "lego75074_counts",
+  legacyMultKey: "lego75074_multiplier",
   completionMessage: "ALL PARTS ACCOUNTED FOR — BUILD YOUR SNOWSPEEDER!",
   features: {
     subModels: false,

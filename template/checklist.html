@@ -556,9 +556,31 @@ let subFilter    = 'all';
 function loadState() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) counts = JSON.parse(saved);
+    if (saved) {
+      const raw = JSON.parse(saved);
+      const keys = Object.keys(raw);
+      if (keys.length === 0 || PARTS.some(p => p.id in raw)) {
+        // current format: part ID keys ("44728-11")
+        counts = raw;
+      } else if (keys.every(k => /^\d+$/.test(k))) {
+        // legacy format: numeric array index keys — migrate once
+        keys.forEach(i => {
+          const part = PARTS[parseInt(i)];
+          if (part && raw[i] > 0) counts[part.id] = raw[i];
+        });
+        saveState();
+      } else {
+        // legacy b-wing format: "partNo_colorId" underscore — migrate once
+        keys.forEach(k => {
+          const newKey = k.replace(/_(\d+)$/, '-$1');
+          if (PARTS.some(p => p.id === newKey) && raw[k] > 0) counts[newKey] = raw[k];
+        });
+        saveState();
+      }
+    }
     if (STORAGE_KEY_MULT) {
-      const savedMult = localStorage.getItem(STORAGE_KEY_MULT);
+      const savedMult = localStorage.getItem(STORAGE_KEY_MULT)
+        || (SET.legacyMultKey ? localStorage.getItem(SET.legacyMultKey) : null);
       if (savedMult) multiplier = Math.max(1, parseInt(savedMult) || 1);
     }
   } catch(e) {}
