@@ -553,30 +553,34 @@ let statusFilter = 'all';
 let colorFilter  = 'all';
 let subFilter    = 'all';
 
+function migrateRaw(raw) {
+  const keys = Object.keys(raw);
+  if (keys.length === 0 || PARTS.some(p => p.id in raw)) {
+    return raw;
+  } else if (keys.every(k => /^\d+$/.test(k))) {
+    const migrated = {};
+    keys.forEach(i => {
+      const part = PARTS[parseInt(i)];
+      if (part && raw[i] > 0) migrated[part.id] = raw[i];
+    });
+    return migrated;
+  } else {
+    const migrated = {};
+    keys.forEach(k => {
+      const newKey = k.replace(/_(\d+)$/, '-$1');
+      if (PARTS.some(p => p.id === newKey) && raw[k] > 0) migrated[newKey] = raw[k];
+    });
+    return migrated;
+  }
+}
+
 function loadState() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       const raw = JSON.parse(saved);
-      const keys = Object.keys(raw);
-      if (keys.length === 0 || PARTS.some(p => p.id in raw)) {
-        // current format: part ID keys ("44728-11")
-        counts = raw;
-      } else if (keys.every(k => /^\d+$/.test(k))) {
-        // legacy format: numeric array index keys — migrate once
-        keys.forEach(i => {
-          const part = PARTS[parseInt(i)];
-          if (part && raw[i] > 0) counts[part.id] = raw[i];
-        });
-        saveState();
-      } else {
-        // legacy b-wing format: "partNo_colorId" underscore — migrate once
-        keys.forEach(k => {
-          const newKey = k.replace(/_(\d+)$/, '-$1');
-          if (PARTS.some(p => p.id === newKey) && raw[k] > 0) counts[newKey] = raw[k];
-        });
-        saveState();
-      }
+      counts = migrateRaw(raw);
+      if (counts !== raw) saveState();
     }
     if (STORAGE_KEY_MULT) {
       const savedMult = localStorage.getItem(STORAGE_KEY_MULT)
@@ -859,7 +863,7 @@ document.getElementById('import-input').addEventListener('change', e => {
   const reader = new FileReader();
   reader.onload = ev => {
     try {
-      counts = JSON.parse(ev.target.result);
+      counts = migrateRaw(JSON.parse(ev.target.result));
       saveState();
       document.querySelectorAll('.part-card').forEach(card => {
         const part = PARTS.find(p => p.id === card.dataset.id);
