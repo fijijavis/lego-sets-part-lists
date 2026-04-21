@@ -921,6 +921,15 @@ buildColorFilters();
 buildSubFilters();
 buildGrid();
 updateProgress();
+
+// ── DEBUG BANNER (temporary) ─────────────────────────────────────
+(function() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  const el = document.createElement('div');
+  el.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#000;color:#0f0;font:11px monospace;padding:8px;z-index:9999;word-break:break-all;max-height:40vh;overflow:auto;';
+  el.textContent = 'KEY: ' + STORAGE_KEY + '\nRAW: ' + (raw ? raw.slice(0, 300) : 'null');
+  document.body.appendChild(el);
+})();
 </script>
 </body>
 </html>
