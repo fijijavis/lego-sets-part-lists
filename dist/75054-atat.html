@@ -1,0 +1,2341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parts Checklist</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #12151c;
+    --surface2: #181c26;
+    --border: #252c3a;
+    --accent-glow: #4ab4e8;
+    --accent-dim: rgba(74,180,232,0.12);
+    --accent-shadow: rgba(74,180,232,0.5);
+    --text: #d4dce8;
+    --text-dim: #6a7a8e;
+    --amber: #e8a030;
+    --done: #4ab870;
+    --done-dim: #1e3828;
+    --partial-dim: #2e2010;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: relative; z-index: 1;
+    background: linear-gradient(180deg, #0d1520 0%, var(--surface) 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 24px 20px;
+  }
+  .header-inner { max-width: 1300px; margin: 0 auto; }
+  .set-badge {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px; font-weight: 700;
+    color: var(--accent-glow);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    opacity: 0.8;
+  }
+  h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.5rem, 4vw, 2.4rem);
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 0.04em;
+    line-height: 1.1;
+    text-shadow: 0 0 30px var(--accent-shadow);
+    margin-bottom: 0;
+  }
+  h1 span { color: var(--accent-glow); }
+
+  .title-row {
+    display: flex; align-items: center; gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+
+  .multiplier-wrap {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 14px;
+    flex-shrink: 0;
+  }
+  .multiplier-label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px; font-weight: 700;
+    color: var(--text-dim);
+    letter-spacing: 0.18em;
+  }
+  .multiplier-input {
+    width: 54px; height: 30px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--accent-glow);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px; font-weight: 700;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.15s;
+    -moz-appearance: textfield;
+  }
+  .multiplier-input::-webkit-inner-spin-button,
+  .multiplier-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .multiplier-input:focus { border-color: var(--accent-glow); box-shadow: 0 0 8px var(--accent-dim); }
+
+  .progress-row {
+    display: flex; align-items: center; gap: 16px;
+    flex-wrap: wrap;
+  }
+  .progress-counters {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px; font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+  .progress-counters .hi { color: var(--accent-glow); }
+  .progress-bar-wrap {
+    flex: 1; min-width: 180px;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-glow), #9fd4f8);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+    width: 0%;
+    box-shadow: 0 0 8px var(--accent-shadow);
+  }
+
+  /* ── CONTROLS ── */
+  .controls {
+    position: relative; z-index: 1;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+  }
+  .controls-inner {
+    max-width: 1300px; margin: 0 auto;
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+  }
+  .filter-group { display: flex; gap: 6px; align-items: center; }
+  .filter-label {
+    font-size: 10px; letter-spacing: 0.12em;
+    color: var(--text-dim); text-transform: uppercase;
+    margin-right: 2px;
+  }
+  .filter-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 5px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .filter-btn:hover { border-color: var(--accent-glow); color: var(--accent-glow); }
+  .filter-btn.active {
+    background: var(--accent-dim);
+    border-color: var(--accent-glow);
+    color: var(--accent-glow);
+  }
+  .color-pill {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 4px 10px 4px 7px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; gap: 5px;
+    white-space: nowrap;
+  }
+  .color-pill:hover { border-color: #555; color: var(--text); }
+  .color-pill.active { border-color: #aaa; color: var(--text); background: rgba(255,255,255,0.06); }
+  .color-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+  /* sub-model filter pills */
+  .sub-pill {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 4px 10px 4px 7px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; gap: 5px;
+    white-space: nowrap;
+  }
+  .sub-pill:hover { border-color: #555; color: var(--text); }
+  .sub-pill.active { border-color: #aaa; color: var(--text); background: rgba(255,255,255,0.06); }
+  .sub-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+
+  .controls-right { margin-left: auto; display: flex; gap: 8px; }
+  .ctrl-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    padding: 5px 11px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.05em;
+  }
+  .ctrl-btn:hover { border-color: var(--accent-glow); color: var(--accent-glow); }
+  .ctrl-btn.danger:hover { border-color: #e85050; color: #e85050; }
+
+  /* ── GRID ── */
+  main {
+    position: relative; z-index: 1;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+  .parts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 14px;
+  }
+
+  /* ── PART CARD ── */
+  .part-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.1s, opacity 0.3s;
+    position: relative;
+    user-select: none;
+  }
+  .part-card:hover { border-color: #3d4f66; transform: translateY(-1px); }
+  .part-card.partial { border-color: var(--amber); background: #161208; }
+  .part-card.done {
+    border-color: var(--done);
+    background: var(--done-dim);
+    opacity: 0.65;
+  }
+  .part-card.hidden { display: none; }
+
+  .card-img-wrap {
+    background: #0e1119;
+    aspect-ratio: 1;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .card-img-wrap img {
+    max-width: 80%; max-height: 80%;
+    object-fit: contain;
+    image-rendering: pixelated;
+  }
+  .done-overlay {
+    display: none;
+    position: absolute; inset: 0;
+    background: rgba(30,56,40,0.55);
+    align-items: center; justify-content: center;
+    font-size: 2.2rem;
+  }
+  .part-card.done .done-overlay { display: flex; }
+
+  .color-pip {
+    position: absolute; top: 6px; right: 6px;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.4);
+    box-shadow: 0 0 4px rgba(0,0,0,0.5);
+  }
+  .sub-pip {
+    position: absolute; top: 6px; left: 6px;
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    border: 1px solid rgba(0,0,0,0.4);
+    box-shadow: 0 0 4px rgba(0,0,0,0.5);
+    display: none;
+  }
+
+  .card-body { padding: 9px 10px 10px; }
+  .part-num {
+    font-size: 10px; font-weight: 500;
+    color: var(--accent-glow);
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+  }
+  .part-name {
+    font-size: 10px; color: var(--text-dim);
+    line-height: 1.35;
+    margin-bottom: 3px;
+    min-height: 27px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .part-card.done .part-name { color: var(--done); opacity: 0.7; }
+
+  .counter-row { display: flex; align-items: center; gap: 5px; }
+  .cnt-btn {
+    width: 36px; height: 36px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-dim);
+    font-size: 16px; line-height: 1;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.12s;
+    flex-shrink: 0;
+    touch-action: manipulation;
+  }
+  .cnt-btn:hover { border-color: var(--accent-glow); color: var(--accent-glow); }
+  .inc-btn { margin-left: auto; }
+  .cnt-input {
+    width: 38px; height: 36px;
+    background: #0a0c10;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px; font-weight: 600;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.15s;
+    -moz-appearance: textfield;
+  }
+  .cnt-input::-webkit-inner-spin-button,
+  .cnt-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .cnt-input:focus { border-color: var(--accent-glow); }
+  .part-card.done .cnt-input { color: var(--done); }
+  .cnt-total {
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 0.03em;
+    flex-shrink: 0;
+  }
+  .part-card.done .cnt-total { color: var(--done); }
+
+  /* ── PART COLOR LABEL ── */
+  .part-color {
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.03em;
+    opacity: 0.7;
+    margin-bottom: 7px;
+  }
+  .part-card.done .part-color { color: var(--done); opacity: 0.6; }
+
+  /* ── COLOR PILL REMAINING COUNT ── */
+  .pill-remaining {
+    font-size: 9px;
+    opacity: 0.65;
+    margin-left: 2px;
+  }
+  .pill-remaining:empty { display: none; }
+  .color-pill.all-done .pill-remaining { color: var(--done); opacity: 0.8; }
+
+  /* ── COMPLETE BADGE ── */
+  .complete-badge {
+    display: none;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px; font-weight: 700;
+    color: var(--done);
+    letter-spacing: 0.12em;
+    padding: 3px 10px;
+    border: 1px solid var(--done);
+    border-radius: 4px;
+    background: var(--done-dim);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .complete-badge.visible { display: inline-flex; align-items: center; }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 0;
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+
+  /* ── COMPLETION BANNER ── */
+  #completion-banner {
+    display: none;
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #0d1a2a, #0e2318);
+    border: 2px solid var(--done);
+    border-radius: 12px;
+    padding: 30px 48px;
+    text-align: center;
+    z-index: 1000;
+    box-shadow: 0 0 60px rgba(74,184,112,0.35), 0 0 120px rgba(74,184,112,0.15);
+    animation: bannerPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    max-width: 90vw;
+  }
+  @keyframes bannerPop {
+    from { transform: translate(-50%, -50%) scale(0.7); opacity: 0; }
+    to   { transform: translate(-50%, -50%) scale(1);   opacity: 1; }
+  }
+  #completion-banner .banner-text {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(0.9rem, 2.5vw, 1.4rem);
+    font-weight: 700;
+    color: var(--done);
+    letter-spacing: 0.06em;
+    text-shadow: 0 0 20px rgba(74,184,112,0.5);
+  }
+
+  /* ── HIDDEN FILE INPUT ── */
+  #import-input { display: none; }
+
+  /* ── TOUCH ── */
+  .part-card    { touch-action: manipulation; }
+  .filter-btn   { touch-action: manipulation; min-height: 36px; }
+  .color-pill   { touch-action: manipulation; min-height: 36px; }
+  .sub-pill     { touch-action: manipulation; min-height: 36px; }
+  .ctrl-btn     { touch-action: manipulation; min-height: 36px; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── MOBILE ── */
+  @media (max-width: 600px) {
+    header { padding: 16px 16px 12px; }
+    main   { padding: 16px; }
+    .controls { padding: 10px 16px; }
+    .controls-inner { gap: 8px; }
+
+    /* status filter spans full width */
+    .filter-group:first-child { width: 100%; }
+
+    /* color + sub filters scroll horizontally instead of wrapping */
+    #color-filters,
+    #sub-filters {
+      flex-wrap: nowrap !important;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      width: 100%;
+      padding-bottom: 2px;
+    }
+    #color-filters::-webkit-scrollbar,
+    #sub-filters::-webkit-scrollbar { display: none; }
+
+    /* utility buttons sit on their own row, flush right */
+    .controls-right { margin-left: 0; width: 100%; }
+
+    /* tighter grid on narrow screens */
+    .parts-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="set-badge" id="set-badge"></div>
+    <div class="title-row">
+      <h1 id="set-title"></h1>
+      <div class="multiplier-wrap">
+        <label class="multiplier-label" for="multiplier">SETS</label>
+        <input id="multiplier" class="multiplier-input" type="number" min="1" max="999" value="1">
+      </div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-counters">
+        <span class="hi" id="found-types">0</span><span> / </span><span id="total-types">0</span><span> types · </span>
+        <span class="hi" id="found-pcs">0</span><span> / </span><span id="total-pcs">0</span><span> pcs</span>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progress-bar"></div>
+      </div>
+      <span class="complete-badge" id="complete-badge">✓ COMPLETE</span>
+    </div>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="controls-inner">
+    <div class="filter-group">
+      <span class="filter-label">Show</span>
+      <button class="filter-btn active" data-status="all">All</button>
+      <button class="filter-btn" data-status="remaining">Remaining</button>
+      <button class="filter-btn" data-status="found">Found</button>
+    </div>
+    <div class="filter-group" id="color-filters" style="flex-wrap:wrap;gap:5px;">
+      <span class="filter-label">Colour</span>
+    </div>
+    <div class="filter-group" id="sub-filters" style="flex-wrap:wrap;gap:5px;display:none;">
+      <span class="filter-label">Sub</span>
+    </div>
+    <div class="controls-right">
+      <button class="ctrl-btn" id="export-btn">Export JSON</button>
+      <button class="ctrl-btn" id="import-btn">Import JSON</button>
+      <input type="file" id="import-input" accept=".json">
+      <button class="ctrl-btn danger" id="reset-btn">Reset</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="parts-grid" id="parts-grid"></div>
+</main>
+
+<div id="completion-banner">
+  <div class="banner-text" id="banner-text"></div>
+</div>
+
+<script>
+// ── SET CONFIG (injected at build time) ──────────────────────────
+const SET = {
+  "setNumber": "75054",
+  "name": "AT-AT",
+  "accentColor": "#7ab84a",
+  "storageKey": "lego75054_counts",
+  "completionMessage": "🦾 IMPERIAL WALKER COMPLETE — ALL TERRAIN ASSAULT READY FOR DEPLOYMENT!",
+  "features": {
+    "subModels": false
+  },
+  "subModelDefs": [],
+  "colors": {
+    "1": {
+      "name": "White",
+      "hex": "#f0f0f0"
+    },
+    "2": {
+      "name": "Tan",
+      "hex": "#c9ae8e"
+    },
+    "3": {
+      "name": "Yellow",
+      "hex": "#e8c00e"
+    },
+    "4": {
+      "name": "Orange",
+      "hex": "#e85c00"
+    },
+    "5": {
+      "name": "Red",
+      "hex": "#b30000"
+    },
+    "7": {
+      "name": "Blue",
+      "hex": "#0055a4"
+    },
+    "11": {
+      "name": "Black",
+      "hex": "#1a1a1a"
+    },
+    "15": {
+      "name": "Trans-Light Blue",
+      "hex": "#88bbdd"
+    },
+    "17": {
+      "name": "Trans-Red",
+      "hex": "#cc3333"
+    },
+    "85": {
+      "name": "Dark Bluish Gray",
+      "hex": "#595d6e"
+    },
+    "86": {
+      "name": "Light Bluish Gray",
+      "hex": "#a0aab6"
+    }
+  },
+  "parts": [
+    {
+      "id": "44728-11",
+      "partNo": "44728",
+      "colorId": 11,
+      "qty": 10,
+      "name": "Bracket 1 x 2 - 2 x 2"
+    },
+    {
+      "id": "3010-11",
+      "partNo": "3010",
+      "colorId": 11,
+      "qty": 1,
+      "name": "Brick 1 x 4"
+    },
+    {
+      "id": "92738-11",
+      "partNo": "92738",
+      "colorId": 11,
+      "qty": 1,
+      "name": "Blaster SW Small with Scope"
+    },
+    {
+      "id": "58247-11",
+      "partNo": "58247",
+      "colorId": 11,
+      "qty": 3,
+      "name": "Blaster SW Standard"
+    },
+    {
+      "id": "3023-11",
+      "partNo": "3023",
+      "colorId": 11,
+      "qty": 40,
+      "name": "Plate 1 x 2"
+    },
+    {
+      "id": "3623-11",
+      "partNo": "3623",
+      "colorId": 11,
+      "qty": 4,
+      "name": "Plate 1 x 3"
+    },
+    {
+      "id": "3460-11",
+      "partNo": "3460",
+      "colorId": 11,
+      "qty": 8,
+      "name": "Plate 1 x 8"
+    },
+    {
+      "id": "3022-11",
+      "partNo": "3022",
+      "colorId": 11,
+      "qty": 2,
+      "name": "Plate 2 x 2"
+    },
+    {
+      "id": "3021-11",
+      "partNo": "3021",
+      "colorId": 11,
+      "qty": 4,
+      "name": "Plate 2 x 3"
+    },
+    {
+      "id": "3034-11",
+      "partNo": "3034",
+      "colorId": 11,
+      "qty": 6,
+      "name": "Plate 2 x 8"
+    },
+    {
+      "id": "3031-11",
+      "partNo": "3031",
+      "colorId": 11,
+      "qty": 2,
+      "name": "Plate 4 x 4"
+    },
+    {
+      "id": "92107-11",
+      "partNo": "92107",
+      "colorId": 11,
+      "qty": 1,
+      "name": "Plate, Modified 6 x 8 Trap Door Frame"
+    },
+    {
+      "id": "4073-11",
+      "partNo": "4073",
+      "colorId": 11,
+      "qty": 12,
+      "name": "Plate, Round 1 x 1"
+    },
+    {
+      "id": "4032-11",
+      "partNo": "4032",
+      "colorId": 11,
+      "qty": 12,
+      "name": "Plate, Round 2 x 2 with Axle Hole"
+    },
+    {
+      "id": "13547-11",
+      "partNo": "13547",
+      "colorId": 11,
+      "qty": 2,
+      "name": "Slope, Curved 4 x 1 Inverted"
+    },
+    {
+      "id": "3705-11",
+      "partNo": "3705",
+      "colorId": 11,
+      "qty": 6,
+      "name": "Technic, Axle 4L"
+    },
+    {
+      "id": "3706-11",
+      "partNo": "3706",
+      "colorId": 11,
+      "qty": 2,
+      "name": "Technic, Axle 6L"
+    },
+    {
+      "id": "3707-11",
+      "partNo": "3707",
+      "colorId": 11,
+      "qty": 1,
+      "name": "Technic, Axle 8L"
+    },
+    {
+      "id": "3894-11",
+      "partNo": "3894",
+      "colorId": 11,
+      "qty": 2,
+      "name": "Technic, Brick 1 x 6 with Holes"
+    },
+    {
+      "id": "32523-11",
+      "partNo": "32523",
+      "colorId": 11,
+      "qty": 8,
+      "name": "Technic, Liftarm Thick 1 x 3"
+    },
+    {
+      "id": "32524-11",
+      "partNo": "32524",
+      "colorId": 11,
+      "qty": 2,
+      "name": "Technic, Liftarm Thick 1 x 7"
+    },
+    {
+      "id": "11478-11",
+      "partNo": "11478",
+      "colorId": 11,
+      "qty": 2,
+      "name": "Technic, Liftarm Thin 1 x 5 - Axle Holes"
+    },
+    {
+      "id": "32140-11",
+      "partNo": "32140",
+      "colorId": 11,
+      "qty": 1,
+      "name": "Technic, Liftarm Bent L-Shape 2 x 4"
+    },
+    {
+      "id": "2825-11",
+      "partNo": "2825",
+      "colorId": 11,
+      "qty": 4,
+      "name": "Technic, Liftarm Stud Connector Thin 1 x 4"
+    },
+    {
+      "id": "11455-11",
+      "partNo": "11455",
+      "colorId": 11,
+      "qty": 2,
+      "name": "Technic, Pin Connector Perp. 2 x 4 Bent"
+    },
+    {
+      "id": "32529-11",
+      "partNo": "32529",
+      "colorId": 11,
+      "qty": 2,
+      "name": "Technic, Pin Connector Plate with Hole"
+    },
+    {
+      "id": "15100-11",
+      "partNo": "15100",
+      "colorId": 11,
+      "qty": 6,
+      "name": "Technic, Pin with Friction Ridges and Pin Hole"
+    },
+    {
+      "id": "6628-11",
+      "partNo": "6628",
+      "colorId": 11,
+      "qty": 8,
+      "name": "Technic, Pin with Friction Ridges and Tow Ball"
+    },
+    {
+      "id": "2780-11",
+      "partNo": "2780",
+      "colorId": 11,
+      "qty": 109,
+      "name": "Technic, Pin with Short Friction Ridges"
+    },
+    {
+      "id": "3069-11",
+      "partNo": "3069",
+      "colorId": 11,
+      "qty": 2,
+      "name": "Tile 1 x 2"
+    },
+    {
+      "id": "6134-7",
+      "partNo": "6134",
+      "colorId": 7,
+      "qty": 2,
+      "name": "Hinge Brick 2 x 2 Top Plate"
+    },
+    {
+      "id": "3022-7",
+      "partNo": "3022",
+      "colorId": 7,
+      "qty": 1,
+      "name": "Plate 2 x 2"
+    },
+    {
+      "id": "43093-7",
+      "partNo": "43093",
+      "colorId": 7,
+      "qty": 19,
+      "name": "Technic, Axle 1L with Pin with Friction Ridges"
+    },
+    {
+      "id": "6632-7",
+      "partNo": "6632",
+      "colorId": 7,
+      "qty": 2,
+      "name": "Technic, Liftarm Thin 1 x 3 - Axle Holes"
+    },
+    {
+      "id": "4274-7",
+      "partNo": "4274",
+      "colorId": 7,
+      "qty": 65,
+      "name": "Technic, Pin 1/2 without Friction Ridges"
+    },
+    {
+      "id": "6558-7",
+      "partNo": "6558",
+      "colorId": 7,
+      "qty": 33,
+      "name": "Technic, Pin 3L with Friction Ridges"
+    },
+    {
+      "id": "2458-85",
+      "partNo": "2458",
+      "colorId": 85,
+      "qty": 4,
+      "name": "Brick, Modified 1 x 2 with Pin"
+    },
+    {
+      "id": "90258-85",
+      "partNo": "90258",
+      "colorId": 85,
+      "qty": 4,
+      "name": "Brick, Modified 2 x 2 with Channels and Axle Hole"
+    },
+    {
+      "id": "2462-85",
+      "partNo": "2462",
+      "colorId": 85,
+      "qty": 16,
+      "name": "Brick, Modified Facet 3 x 3"
+    },
+    {
+      "id": "4740-85",
+      "partNo": "4740",
+      "colorId": 85,
+      "qty": 4,
+      "name": "Dish 2 x 2 Inverted (Radar)"
+    },
+    {
+      "id": "43898-85",
+      "partNo": "43898",
+      "colorId": 85,
+      "qty": 1,
+      "name": "Dish 3 x 3 Inverted (Radar)"
+    },
+    {
+      "id": "30304-85",
+      "partNo": "30304",
+      "colorId": 85,
+      "qty": 1,
+      "name": "Minifigure, Utensil Binoculars Space"
+    },
+    {
+      "id": "3837-85",
+      "partNo": "3837",
+      "colorId": 85,
+      "qty": 2,
+      "name": "Minifigure, Utensil Shovel / Spade"
+    },
+    {
+      "id": "3024-85",
+      "partNo": "3024",
+      "colorId": 85,
+      "qty": 8,
+      "name": "Plate 1 x 1"
+    },
+    {
+      "id": "3023-85",
+      "partNo": "3023",
+      "colorId": 85,
+      "qty": 7,
+      "name": "Plate 1 x 2"
+    },
+    {
+      "id": "3710-85",
+      "partNo": "3710",
+      "colorId": 85,
+      "qty": 12,
+      "name": "Plate 1 x 4"
+    },
+    {
+      "id": "3666-85",
+      "partNo": "3666",
+      "colorId": 85,
+      "qty": 5,
+      "name": "Plate 1 x 6"
+    },
+    {
+      "id": "4477-85",
+      "partNo": "4477",
+      "colorId": 85,
+      "qty": 2,
+      "name": "Plate 1 x 10"
+    },
+    {
+      "id": "3022-85",
+      "partNo": "3022",
+      "colorId": 85,
+      "qty": 2,
+      "name": "Plate 2 x 2"
+    },
+    {
+      "id": "3020-85",
+      "partNo": "3020",
+      "colorId": 85,
+      "qty": 2,
+      "name": "Plate 2 x 4"
+    },
+    {
+      "id": "3795-85",
+      "partNo": "3795",
+      "colorId": 85,
+      "qty": 3,
+      "name": "Plate 2 x 6"
+    },
+    {
+      "id": "3034-85",
+      "partNo": "3034",
+      "colorId": 85,
+      "qty": 3,
+      "name": "Plate 2 x 8"
+    },
+    {
+      "id": "3832-85",
+      "partNo": "3832",
+      "colorId": 85,
+      "qty": 2,
+      "name": "Plate 2 x 10"
+    },
+    {
+      "id": "3794a-85",
+      "partNo": "3794a",
+      "colorId": 85,
+      "qty": 16,
+      "name": "Plate, Modified 1 x 2 Jumper (no groove)"
+    },
+    {
+      "id": "63868-85",
+      "partNo": "63868",
+      "colorId": 85,
+      "qty": 14,
+      "name": "Plate, Modified 1 x 2 with Clip on End"
+    },
+    {
+      "id": "32028-85",
+      "partNo": "32028",
+      "colorId": 85,
+      "qty": 24,
+      "name": "Plate, Modified 1 x 2 with Door Rail"
+    },
+    {
+      "id": "4590-85",
+      "partNo": "4590",
+      "colorId": 85,
+      "qty": 2,
+      "name": "Plate, Modified 1 x 4 Offset"
+    },
+    {
+      "id": "4510-85",
+      "partNo": "4510",
+      "colorId": 85,
+      "qty": 2,
+      "name": "Plate, Modified 1 x 8 with Door Rail"
+    },
+    {
+      "id": "92099-85",
+      "partNo": "92099",
+      "colorId": 85,
+      "qty": 1,
+      "name": "Plate, Modified 4 x 6 Trap Door Hinge"
+    },
+    {
+      "id": "60474-85",
+      "partNo": "60474",
+      "colorId": 85,
+      "qty": 2,
+      "name": "Plate, Round 4 x 4 with Hole"
+    },
+    {
+      "id": "15301c01-85",
+      "partNo": "15301c01",
+      "colorId": 85,
+      "qty": 2,
+      "name": "Projectile Launcher, 1 x 4 Spring Shooter"
+    },
+    {
+      "id": "30363-85",
+      "partNo": "30363",
+      "colorId": 85,
+      "qty": 1,
+      "name": "Slope 18 4 x 2"
+    },
+    {
+      "id": "85984-85",
+      "partNo": "85984",
+      "colorId": 85,
+      "qty": 5,
+      "name": "Slope 30 1 x 2 x 2/3"
+    },
+    {
+      "id": "3037-85",
+      "partNo": "3037",
+      "colorId": 85,
+      "qty": 1,
+      "name": "Slope 45 2 x 4"
+    },
+    {
+      "id": "3747b-85",
+      "partNo": "3747b",
+      "colorId": 85,
+      "qty": 2,
+      "name": "Slope, Inverted 33 3 x 2"
+    },
+    {
+      "id": "44224-85",
+      "partNo": "44224",
+      "colorId": 85,
+      "qty": 8,
+      "name": "Technic Rotation Joint Disk (Hole) + 3L Liftarm"
+    },
+    {
+      "id": "11214-85",
+      "partNo": "11214",
+      "colorId": 85,
+      "qty": 5,
+      "name": "Technic, Axle 1L with Pin 2L w/ Friction Ridges"
+    },
+    {
+      "id": "87083-85",
+      "partNo": "87083",
+      "colorId": 85,
+      "qty": 5,
+      "name": "Technic, Axle 4L with Stop"
+    },
+    {
+      "id": "32013-85",
+      "partNo": "32013",
+      "colorId": 85,
+      "qty": 10,
+      "name": "Technic, Axle and Pin Connector Angled #1"
+    },
+    {
+      "id": "6536-85",
+      "partNo": "6536",
+      "colorId": 85,
+      "qty": 4,
+      "name": "Technic, Axle and Pin Connector Perpendicular"
+    },
+    {
+      "id": "3701-85",
+      "partNo": "3701",
+      "colorId": 85,
+      "qty": 5,
+      "name": "Technic, Brick 1 x 4 with Holes"
+    },
+    {
+      "id": "3894-85",
+      "partNo": "3894",
+      "colorId": 85,
+      "qty": 8,
+      "name": "Technic, Brick 1 x 6 with Holes"
+    },
+    {
+      "id": "3703-85",
+      "partNo": "3703",
+      "colorId": 85,
+      "qty": 2,
+      "name": "Technic, Brick 1 x 16 with Holes"
+    },
+    {
+      "id": "32523-85",
+      "partNo": "32523",
+      "colorId": 85,
+      "qty": 6,
+      "name": "Technic, Liftarm Thick 1 x 3"
+    },
+    {
+      "id": "40490-85",
+      "partNo": "40490",
+      "colorId": 85,
+      "qty": 2,
+      "name": "Technic, Liftarm Thick 1 x 9"
+    },
+    {
+      "id": "32526-85",
+      "partNo": "32526",
+      "colorId": 85,
+      "qty": 6,
+      "name": "Technic, Liftarm Bent L-Shape 3 x 5"
+    },
+    {
+      "id": "2739a-85",
+      "partNo": "2739a",
+      "colorId": 85,
+      "qty": 4,
+      "name": "Technic, Link 1 x 6 without Stoppers"
+    },
+    {
+      "id": "32530-85",
+      "partNo": "32530",
+      "colorId": 85,
+      "qty": 5,
+      "name": "Technic, Pin Connector Plate 1 x 2 x 1 2/3"
+    },
+    {
+      "id": "3738-85",
+      "partNo": "3738",
+      "colorId": 85,
+      "qty": 4,
+      "name": "Technic, Plate 2 x 8 with 7 Holes"
+    },
+    {
+      "id": "63864-85",
+      "partNo": "63864",
+      "colorId": 85,
+      "qty": 4,
+      "name": "Tile 1 x 3"
+    },
+    {
+      "id": "4162-85",
+      "partNo": "4162",
+      "colorId": 85,
+      "qty": 4,
+      "name": "Tile 1 x 8"
+    },
+    {
+      "id": "87079-85",
+      "partNo": "87079",
+      "colorId": 85,
+      "qty": 1,
+      "name": "Tile 2 x 4"
+    },
+    {
+      "id": "2555-85",
+      "partNo": "2555",
+      "colorId": 85,
+      "qty": 2,
+      "name": "Tile, Modified 1 x 1 with Clip"
+    },
+    {
+      "id": "2412b-85",
+      "partNo": "2412b",
+      "colorId": 85,
+      "qty": 24,
+      "name": "Tile, Modified 1 x 2 Grille"
+    },
+    {
+      "id": "51739-85",
+      "partNo": "51739",
+      "colorId": 85,
+      "qty": 4,
+      "name": "Wedge, Plate 2 x 4"
+    },
+    {
+      "id": "43723-85",
+      "partNo": "43723",
+      "colorId": 85,
+      "qty": 4,
+      "name": "Wedge, Plate 3 x 2 Left"
+    },
+    {
+      "id": "43722-85",
+      "partNo": "43722",
+      "colorId": 85,
+      "qty": 4,
+      "name": "Wedge, Plate 3 x 2 Right"
+    },
+    {
+      "id": "2450-85",
+      "partNo": "2450",
+      "colorId": 85,
+      "qty": 4,
+      "name": "Wedge, Plate 3 x 3 Cut Corner"
+    },
+    {
+      "id": "41770-85",
+      "partNo": "41770",
+      "colorId": 85,
+      "qty": 2,
+      "name": "Wedge, Plate 4 x 2 Left"
+    },
+    {
+      "id": "41769-85",
+      "partNo": "41769",
+      "colorId": 85,
+      "qty": 2,
+      "name": "Wedge, Plate 4 x 2 Right"
+    },
+    {
+      "id": "50305-85",
+      "partNo": "50305",
+      "colorId": 85,
+      "qty": 1,
+      "name": "Wedge, Plate 8 x 3 Pentagonal Left"
+    },
+    {
+      "id": "50304-85",
+      "partNo": "50304",
+      "colorId": 85,
+      "qty": 1,
+      "name": "Wedge, Plate 8 x 3 Pentagonal Right"
+    },
+    {
+      "id": "3957b-86",
+      "partNo": "3957b",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Antenna 4H - Flat Top"
+    },
+    {
+      "id": "6183-86",
+      "partNo": "6183",
+      "colorId": 86,
+      "qty": 4,
+      "name": "Arch 1 x 6 x 2 Curved Top"
+    },
+    {
+      "id": "2714a-86",
+      "partNo": "2714a",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Bar 8L with Stop Rings and Pin (Ski Pole)"
+    },
+    {
+      "id": "99781-86",
+      "partNo": "99781",
+      "colorId": 86,
+      "qty": 3,
+      "name": "Bracket 1 x 2 - 1 x 2"
+    },
+    {
+      "id": "3009-86",
+      "partNo": "3009",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Brick 1 x 6"
+    },
+    {
+      "id": "6222-86",
+      "partNo": "6222",
+      "colorId": 86,
+      "qty": 4,
+      "name": "Brick, Round 4 x 4 with Side Pin Holes"
+    },
+    {
+      "id": "85080-86",
+      "partNo": "85080",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Brick, Round Corner 2 x 2 Macaroni"
+    },
+    {
+      "id": "4589b-86",
+      "partNo": "4589b",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Cone 1 x 1 with Top Groove"
+    },
+    {
+      "id": "3960-86",
+      "partNo": "3960",
+      "colorId": 86,
+      "qty": 8,
+      "name": "Dish 4 x 4 Inverted (Radar)"
+    },
+    {
+      "id": "44375b-86",
+      "partNo": "44375b",
+      "colorId": 86,
+      "qty": 4,
+      "name": "Dish 6 x 6 Inverted (Radar)"
+    },
+    {
+      "id": "98285-86",
+      "partNo": "98285",
+      "colorId": 86,
+      "qty": 4,
+      "name": "Hinge Plate 2 x 4 Pin Hole 3 Holes - Bottom"
+    },
+    {
+      "id": "98286-86",
+      "partNo": "98286",
+      "colorId": 86,
+      "qty": 5,
+      "name": "Hinge Plate 2 x 4 Pin Hole 3 Holes - Top"
+    },
+    {
+      "id": "60849-86",
+      "partNo": "60849",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Minifigure, Utensil Hose Nozzle Elaborate"
+    },
+    {
+      "id": "87552-86",
+      "partNo": "87552",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Panel 1 x 2 x 2 with Side Supports"
+    },
+    {
+      "id": "60581-86",
+      "partNo": "60581",
+      "colorId": 86,
+      "qty": 1,
+      "name": "Panel 1 x 4 x 3 with Side Supports"
+    },
+    {
+      "id": "3710-86",
+      "partNo": "3710",
+      "colorId": 86,
+      "qty": 11,
+      "name": "Plate 1 x 4"
+    },
+    {
+      "id": "3666-86",
+      "partNo": "3666",
+      "colorId": 86,
+      "qty": 8,
+      "name": "Plate 1 x 6"
+    },
+    {
+      "id": "4477-86",
+      "partNo": "4477",
+      "colorId": 86,
+      "qty": 10,
+      "name": "Plate 1 x 10"
+    },
+    {
+      "id": "60479-86",
+      "partNo": "60479",
+      "colorId": 86,
+      "qty": 6,
+      "name": "Plate 1 x 12"
+    },
+    {
+      "id": "3022-86",
+      "partNo": "3022",
+      "colorId": 86,
+      "qty": 1,
+      "name": "Plate 2 x 2"
+    },
+    {
+      "id": "3021-86",
+      "partNo": "3021",
+      "colorId": 86,
+      "qty": 10,
+      "name": "Plate 2 x 3"
+    },
+    {
+      "id": "3020-86",
+      "partNo": "3020",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Plate 2 x 4"
+    },
+    {
+      "id": "3795-86",
+      "partNo": "3795",
+      "colorId": 86,
+      "qty": 5,
+      "name": "Plate 2 x 6"
+    },
+    {
+      "id": "3034-86",
+      "partNo": "3034",
+      "colorId": 86,
+      "qty": 1,
+      "name": "Plate 2 x 8"
+    },
+    {
+      "id": "11212-86",
+      "partNo": "11212",
+      "colorId": 86,
+      "qty": 4,
+      "name": "Plate 3 x 3"
+    },
+    {
+      "id": "3031-86",
+      "partNo": "3031",
+      "colorId": 86,
+      "qty": 4,
+      "name": "Plate 4 x 4"
+    },
+    {
+      "id": "3035-86",
+      "partNo": "3035",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Plate 4 x 8"
+    },
+    {
+      "id": "3036-86",
+      "partNo": "3036",
+      "colorId": 86,
+      "qty": 3,
+      "name": "Plate 6 x 8"
+    },
+    {
+      "id": "3028-86",
+      "partNo": "3028",
+      "colorId": 86,
+      "qty": 3,
+      "name": "Plate 6 x 12"
+    },
+    {
+      "id": "92280-86",
+      "partNo": "92280",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Plate, Modified 1 x 2 with Clip (center cut)"
+    },
+    {
+      "id": "87580-86",
+      "partNo": "87580",
+      "colorId": 86,
+      "qty": 9,
+      "name": "Plate, Modified 2 x 2 Jumper (groove)"
+    },
+    {
+      "id": "10247-86",
+      "partNo": "10247",
+      "colorId": 86,
+      "qty": 12,
+      "name": "Plate, Modified 2 x 2 with Pin Hole"
+    },
+    {
+      "id": "99206-86",
+      "partNo": "99206",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Plate, Modified 2 x 2 x 2/3 with 2 Studs"
+    },
+    {
+      "id": "11833-86",
+      "partNo": "11833",
+      "colorId": 86,
+      "qty": 4,
+      "name": "Plate, Round 4 x 4 with 2 x 2 Open Center"
+    },
+    {
+      "id": "60474-86",
+      "partNo": "60474",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Plate, Round 4 x 4 with Hole"
+    },
+    {
+      "id": "54200-86",
+      "partNo": "54200",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Slope 30 1 x 1 x 2/3"
+    },
+    {
+      "id": "85984-86",
+      "partNo": "85984",
+      "colorId": 86,
+      "qty": 4,
+      "name": "Slope 30 1 x 2 x 2/3"
+    },
+    {
+      "id": "3660-86",
+      "partNo": "3660",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Slope, Inverted 45 2 x 2"
+    },
+    {
+      "id": "3713-86",
+      "partNo": "3713",
+      "colorId": 86,
+      "qty": 1,
+      "name": "Technic Bush"
+    },
+    {
+      "id": "44225-86",
+      "partNo": "44225",
+      "colorId": 86,
+      "qty": 8,
+      "name": "Technic Rotation Joint Disk (Pin) + 3L Liftarm"
+    },
+    {
+      "id": "4519-86",
+      "partNo": "4519",
+      "colorId": 86,
+      "qty": 1,
+      "name": "Technic, Axle 3L"
+    },
+    {
+      "id": "32073-86",
+      "partNo": "32073",
+      "colorId": 86,
+      "qty": 4,
+      "name": "Technic, Axle 5L"
+    },
+    {
+      "id": "92907-86",
+      "partNo": "92907",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Technic, Axle and Pin Connector Perp. Split"
+    },
+    {
+      "id": "6538c-86",
+      "partNo": "6538c",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Technic, Axle Connector 2L (Smooth x Hole)"
+    },
+    {
+      "id": "6541-86",
+      "partNo": "6541",
+      "colorId": 86,
+      "qty": 10,
+      "name": "Technic, Brick 1 x 1 with Hole"
+    },
+    {
+      "id": "3700-86",
+      "partNo": "3700",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Technic, Brick 1 x 2 with Hole"
+    },
+    {
+      "id": "3894-86",
+      "partNo": "3894",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Technic, Brick 1 x 6 with Holes"
+    },
+    {
+      "id": "3702-86",
+      "partNo": "3702",
+      "colorId": 86,
+      "qty": 8,
+      "name": "Technic, Brick 1 x 8 with Holes"
+    },
+    {
+      "id": "3895-86",
+      "partNo": "3895",
+      "colorId": 86,
+      "qty": 6,
+      "name": "Technic, Brick 1 x 12 with Holes"
+    },
+    {
+      "id": "32324-86",
+      "partNo": "32324",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Technic, Brick 4 x 4 Open Center"
+    },
+    {
+      "id": "32532-86",
+      "partNo": "32532",
+      "colorId": 86,
+      "qty": 1,
+      "name": "Technic, Brick 6 x 8 Open Center"
+    },
+    {
+      "id": "32525-86",
+      "partNo": "32525",
+      "colorId": 86,
+      "qty": 10,
+      "name": "Technic, Liftarm Thick 1 x 11"
+    },
+    {
+      "id": "6632-86",
+      "partNo": "6632",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Technic, Liftarm Thin 1 x 3 - Axle Holes"
+    },
+    {
+      "id": "11478-86",
+      "partNo": "11478",
+      "colorId": 86,
+      "qty": 8,
+      "name": "Technic, Liftarm Thin 1 x 5 - Axle Holes"
+    },
+    {
+      "id": "4274-86",
+      "partNo": "4274",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Technic, Pin 1/2 without Friction Ridges"
+    },
+    {
+      "id": "87082-86",
+      "partNo": "87082",
+      "colorId": 86,
+      "qty": 1,
+      "name": "Technic, Pin 3L w/ Friction Ridges + Center Hole"
+    },
+    {
+      "id": "44809-86",
+      "partNo": "44809",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Technic, Pin Connector Perp. 2 x 2 Bent"
+    },
+    {
+      "id": "48989-86",
+      "partNo": "48989",
+      "colorId": 86,
+      "qty": 10,
+      "name": "Technic, Pin Connector Perp. 3L with 4 Pins"
+    },
+    {
+      "id": "32001-86",
+      "partNo": "32001",
+      "colorId": 86,
+      "qty": 5,
+      "name": "Technic, Plate 2 x 6 with 5 Holes"
+    },
+    {
+      "id": "3070-86",
+      "partNo": "3070",
+      "colorId": 86,
+      "qty": 4,
+      "name": "Tile 1 x 1"
+    },
+    {
+      "id": "3069-86",
+      "partNo": "3069",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Tile 1 x 2"
+    },
+    {
+      "id": "3069ps1-86",
+      "partNo": "3069ps1",
+      "colorId": 86,
+      "qty": 1,
+      "name": "Tile 1 x 2 with SW Computer Pattern"
+    },
+    {
+      "id": "63864-86",
+      "partNo": "63864",
+      "colorId": 86,
+      "qty": 32,
+      "name": "Tile 1 x 3"
+    },
+    {
+      "id": "6636-86",
+      "partNo": "6636",
+      "colorId": 86,
+      "qty": 10,
+      "name": "Tile 1 x 6"
+    },
+    {
+      "id": "87079-86",
+      "partNo": "87079",
+      "colorId": 86,
+      "qty": 3,
+      "name": "Tile 2 x 4"
+    },
+    {
+      "id": "2555-86",
+      "partNo": "2555",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Tile, Modified 1 x 1 with Clip"
+    },
+    {
+      "id": "88646-86",
+      "partNo": "88646",
+      "colorId": 86,
+      "qty": 8,
+      "name": "Tile, Modified 3 x 4 with 4 Studs"
+    },
+    {
+      "id": "6179-86",
+      "partNo": "6179",
+      "colorId": 86,
+      "qty": 5,
+      "name": "Tile, Modified 4 x 4 with Studs on Edge"
+    },
+    {
+      "id": "6178-86",
+      "partNo": "6178",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Tile, Modified 6 x 12 with Studs on Edges"
+    },
+    {
+      "id": "50373-86",
+      "partNo": "50373",
+      "colorId": 86,
+      "qty": 1,
+      "name": "Wedge 3 1/2 x 4 with Stud Notches"
+    },
+    {
+      "id": "51739-86",
+      "partNo": "51739",
+      "colorId": 86,
+      "qty": 22,
+      "name": "Wedge, Plate 2 x 4"
+    },
+    {
+      "id": "43723-86",
+      "partNo": "43723",
+      "colorId": 86,
+      "qty": 14,
+      "name": "Wedge, Plate 3 x 2 Left"
+    },
+    {
+      "id": "43722-86",
+      "partNo": "43722",
+      "colorId": 86,
+      "qty": 14,
+      "name": "Wedge, Plate 3 x 2 Right"
+    },
+    {
+      "id": "41770-86",
+      "partNo": "41770",
+      "colorId": 86,
+      "qty": 6,
+      "name": "Wedge, Plate 4 x 2 Left"
+    },
+    {
+      "id": "41769-86",
+      "partNo": "41769",
+      "colorId": 86,
+      "qty": 6,
+      "name": "Wedge, Plate 4 x 2 Right"
+    },
+    {
+      "id": "54384-86",
+      "partNo": "54384",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Wedge, Plate 6 x 3 Left"
+    },
+    {
+      "id": "54383-86",
+      "partNo": "54383",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Wedge, Plate 6 x 3 Right"
+    },
+    {
+      "id": "50305-86",
+      "partNo": "50305",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Wedge, Plate 8 x 3 Pentagonal Left"
+    },
+    {
+      "id": "50304-86",
+      "partNo": "50304",
+      "colorId": 86,
+      "qty": 2,
+      "name": "Wedge, Plate 8 x 3 Pentagonal Right"
+    },
+    {
+      "id": "60208-86",
+      "partNo": "60208",
+      "colorId": 86,
+      "qty": 1,
+      "name": "Wheel 31mm D. x 15mm Technic"
+    },
+    {
+      "id": "2458-5",
+      "partNo": "2458",
+      "colorId": 5,
+      "qty": 2,
+      "name": "Brick, Modified 1 x 2 with Pin"
+    },
+    {
+      "id": "11211-5",
+      "partNo": "11211",
+      "colorId": 5,
+      "qty": 1,
+      "name": "Brick, Modified 1 x 2 with Studs on 1 Side"
+    },
+    {
+      "id": "10247-5",
+      "partNo": "10247",
+      "colorId": 5,
+      "qty": 2,
+      "name": "Plate, Modified 2 x 2 with Pin Hole"
+    },
+    {
+      "id": "99206-5",
+      "partNo": "99206",
+      "colorId": 5,
+      "qty": 1,
+      "name": "Plate, Modified 2 x 2 x 2/3 with 2 Studs"
+    },
+    {
+      "id": "32062-5",
+      "partNo": "32062",
+      "colorId": 5,
+      "qty": 2,
+      "name": "Technic, Axle 2L Notched"
+    },
+    {
+      "id": "6536-5",
+      "partNo": "6536",
+      "colorId": 5,
+      "qty": 2,
+      "name": "Technic, Axle and Pin Connector Perpendicular"
+    },
+    {
+      "id": "3700-5",
+      "partNo": "3700",
+      "colorId": 5,
+      "qty": 1,
+      "name": "Technic, Brick 1 x 2 with Hole"
+    },
+    {
+      "id": "3702-5",
+      "partNo": "3702",
+      "colorId": 5,
+      "qty": 1,
+      "name": "Technic, Brick 1 x 8 with Holes"
+    },
+    {
+      "id": "32054-5",
+      "partNo": "32054",
+      "colorId": 5,
+      "qty": 2,
+      "name": "Technic, Pin 3L w/ Friction Ridges + Stop Bush"
+    },
+    {
+      "id": "3709-5",
+      "partNo": "3709",
+      "colorId": 5,
+      "qty": 4,
+      "name": "Technic, Plate 2 x 4 with 3 Holes"
+    },
+    {
+      "id": "96874-4",
+      "partNo": "96874",
+      "colorId": 4,
+      "qty": 1,
+      "name": "Brick and Axle Separator"
+    },
+    {
+      "id": "3710-2",
+      "partNo": "3710",
+      "colorId": 2,
+      "qty": 3,
+      "name": "Plate 1 x 4"
+    },
+    {
+      "id": "4623b-2",
+      "partNo": "4623b",
+      "colorId": 2,
+      "qty": 2,
+      "name": "Plate, Modified 1 x 2 with Bar Arm Up"
+    },
+    {
+      "id": "48336-2",
+      "partNo": "48336",
+      "colorId": 2,
+      "qty": 8,
+      "name": "Plate, Modified 1 x 2 with Bar Handle on Side"
+    },
+    {
+      "id": "4073-2",
+      "partNo": "4073",
+      "colorId": 2,
+      "qty": 3,
+      "name": "Plate, Round 1 x 1"
+    },
+    {
+      "id": "15303-17",
+      "partNo": "15303",
+      "colorId": 17,
+      "qty": 3,
+      "name": "Projectile Arrow, Bar 8L (Spring Shooter Dart)"
+    },
+    {
+      "id": "4073-15",
+      "partNo": "4073",
+      "colorId": 15,
+      "qty": 2,
+      "name": "Plate, Round 1 x 1"
+    },
+    {
+      "id": "3937-1",
+      "partNo": "3937",
+      "colorId": 1,
+      "qty": 2,
+      "name": "Hinge Brick 1 x 2 Base"
+    },
+    {
+      "id": "93095-1",
+      "partNo": "93095",
+      "colorId": 1,
+      "qty": 1,
+      "name": "Panel 1 x 2 x 1 Rounded Corners Center Divider"
+    },
+    {
+      "id": "32316-1",
+      "partNo": "32316",
+      "colorId": 1,
+      "qty": 1,
+      "name": "Technic, Liftarm Thick 1 x 5"
+    },
+    {
+      "id": "3069-1",
+      "partNo": "3069",
+      "colorId": 1,
+      "qty": 3,
+      "name": "Tile 1 x 2"
+    },
+    {
+      "id": "63864-1",
+      "partNo": "63864",
+      "colorId": 1,
+      "qty": 1,
+      "name": "Tile 1 x 3"
+    },
+    {
+      "id": "3023-3",
+      "partNo": "3023",
+      "colorId": 3,
+      "qty": 2,
+      "name": "Plate 1 x 2"
+    },
+    {
+      "id": "6538c-3",
+      "partNo": "6538c",
+      "colorId": 3,
+      "qty": 2,
+      "name": "Technic, Axle Connector 2L (Smooth x Hole)"
+    },
+    {
+      "id": "32449-3",
+      "partNo": "32449",
+      "colorId": 3,
+      "qty": 2,
+      "name": "Technic, Liftarm Thin 1 x 4 - Axle Holes"
+    }
+  ]
+};
+
+// ── APPLY ACCENT COLOR ───────────────────────────────────────────
+(function applyAccent() {
+  const hex = SET.accentColor || '#4ab4e8';
+  const r = parseInt(hex.slice(1,3), 16);
+  const g = parseInt(hex.slice(3,5), 16);
+  const b = parseInt(hex.slice(5,7), 16);
+  const root = document.documentElement;
+  root.style.setProperty('--accent-glow',   hex);
+  root.style.setProperty('--accent-dim',    `rgba(${r},${g},${b},0.12)`);
+  root.style.setProperty('--accent-shadow', `rgba(${r},${g},${b},0.5)`);
+})();
+
+// ── INIT HEADER ──────────────────────────────────────────────────
+document.title = (SET.setNumber ? SET.setNumber + ' ' : '') + SET.name + ' — Parts Checklist';
+document.getElementById('set-badge').textContent =
+  SET.subtitle ? SET.subtitle : SET.setNumber ? 'Set ' + SET.setNumber : 'MOC';
+document.getElementById('set-title').textContent = SET.name;
+document.getElementById('banner-text').textContent = SET.completionMessage || 'BUILD COMPLETE!';
+
+// ── STORAGE ──────────────────────────────────────────────────────
+const STORAGE_KEY      = SET.storageKey;
+const STORAGE_KEY_MULT = SET.storageKey + '_mult';
+
+// ── MULTIPLIER ───────────────────────────────────────────────────
+let multiplier = 1;
+function effectiveQty(part) { return part.qty * multiplier; }
+
+// ── STATE ────────────────────────────────────────────────────────
+const PARTS = SET.parts;
+const COLORS = SET.colors;
+
+let counts       = {};
+let statusFilter = 'all';
+let colorFilter  = 'all';
+let subFilter    = 'all';
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) counts = JSON.parse(saved);
+    if (STORAGE_KEY_MULT) {
+      const savedMult = localStorage.getItem(STORAGE_KEY_MULT);
+      if (savedMult) multiplier = Math.max(1, parseInt(savedMult) || 1);
+    }
+  } catch(e) {}
+}
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(counts));
+  if (STORAGE_KEY_MULT) localStorage.setItem(STORAGE_KEY_MULT, String(multiplier));
+}
+function getCount(id) { return counts[id] || 0; }
+
+// ── IMG URL ──────────────────────────────────────────────────────
+function imgUrl(partNo, colorId) {
+  return `https://img.bricklink.com/ItemImage/PN/${colorId}/${partNo}.png`;
+}
+
+// ── BUILD COLOUR FILTERS ─────────────────────────────────────────
+function buildColorFilters() {
+  const container = document.getElementById('color-filters');
+  const usedIds = [...new Set(PARTS.map(p => p.colorId))];
+  usedIds.sort((a, b) => (COLORS[a]?.name || '').localeCompare(COLORS[b]?.name || ''));
+
+  const allBtn = document.createElement('button');
+  allBtn.className = 'color-pill active'; allBtn.dataset.color = 'all';
+  allBtn.textContent = 'All';
+  container.appendChild(allBtn);
+
+  usedIds.forEach(cid => {
+    const info = COLORS[cid] || { name: `Color ${cid}`, hex: '#888' };
+    const btn = document.createElement('button');
+    btn.className = 'color-pill'; btn.dataset.color = cid;
+    btn.innerHTML = `<span class="color-dot" style="background:${info.hex}"></span>${info.name}<span class="pill-remaining" data-color="${cid}"></span>`;
+    container.appendChild(btn);
+  });
+
+  container.addEventListener('click', e => {
+    const btn = e.target.closest('.color-pill');
+    if (!btn) return;
+    colorFilter = btn.dataset.color;
+    container.querySelectorAll('.color-pill').forEach(b => b.classList.toggle('active', b === btn));
+    applyFilters();
+  });
+}
+
+// ── BUILD SUB-MODEL FILTERS ──────────────────────────────────────
+function buildSubFilters() {
+  if (!SET.features.subModels || !SET.subModelDefs.length) return;
+  const container = document.getElementById('sub-filters');
+  container.style.display = '';
+
+  const allBtn = document.createElement('button');
+  allBtn.className = 'sub-pill active'; allBtn.dataset.sub = 'all';
+  allBtn.textContent = 'All';
+  container.appendChild(allBtn);
+
+  SET.subModelDefs.forEach(def => {
+    const btn = document.createElement('button');
+    btn.className = 'sub-pill'; btn.dataset.sub = def.id;
+    btn.innerHTML = `<span class="sub-dot" style="background:${def.color}"></span>${def.label}`;
+    container.appendChild(btn);
+  });
+
+  container.addEventListener('click', e => {
+    const btn = e.target.closest('.sub-pill');
+    if (!btn) return;
+    subFilter = btn.dataset.sub;
+    container.querySelectorAll('.sub-pill').forEach(b => b.classList.toggle('active', b === btn));
+    applyFilters();
+  });
+}
+
+// ── BUILD GRID ───────────────────────────────────────────────────
+function buildGrid() {
+  const grid = document.getElementById('parts-grid');
+  grid.innerHTML = '';
+  const hasSubModels = SET.features.subModels && SET.subModelDefs.length;
+
+  PARTS.forEach(part => {
+    const colorInfo = COLORS[part.colorId] || { name: `Color ${part.colorId}`, hex: '#888' };
+    const subDef = hasSubModels && part.sub
+      ? SET.subModelDefs.find(d => d.id === part.sub)
+      : null;
+
+    const card = document.createElement('div');
+    card.className = 'part-card';
+    card.dataset.id = part.id;
+    card.dataset.color = part.colorId;
+    if (part.sub) card.dataset.sub = part.sub;
+
+    const imgSrc = imgUrl(part.partNo, part.colorId);
+    const fallback = imgUrl(part.partNo, 0);
+    const subPipStyle = subDef ? `display:block;background:${subDef.color}` : 'display:none';
+
+    card.innerHTML = `
+      <div class="card-img-wrap">
+        <img src="${imgSrc}" alt="${part.name}"
+          onerror="if(this.src!=='${fallback}')this.src='${fallback}'">
+        <div class="done-overlay">✓</div>
+        <div class="color-pip" style="background:${colorInfo.hex}" title="${colorInfo.name}"></div>
+        <div class="sub-pip" style="${subPipStyle}" title="${part.sub || ''}"></div>
+      </div>
+      <div class="card-body">
+        <div class="part-num">${part.partNo}</div>
+        <div class="part-name">${part.name}</div>
+        <div class="part-color">${colorInfo.name}</div>
+        <div class="counter-row">
+          <button class="cnt-btn dec-btn" title="Decrease">−</button>
+          <input class="cnt-input" type="number" min="0" max="${effectiveQty(part)}" value="${getCount(part.id)}">
+          <span class="cnt-total">/ <span class="total-val">${effectiveQty(part)}</span></span>
+          <button class="cnt-btn inc-btn" title="Increase">+</button>
+        </div>
+      </div>`;
+
+    card.querySelector('.card-img-wrap').addEventListener('click', () => increment(part, card));
+    card.querySelector('.part-name').addEventListener('click', () => increment(part, card));
+    card.querySelector('.inc-btn').addEventListener('click', e => { e.stopPropagation(); increment(part, card); });
+    card.querySelector('.dec-btn').addEventListener('click', e => { e.stopPropagation(); decrement(part, card); });
+
+    const inp = card.querySelector('.cnt-input');
+    inp.addEventListener('change', e => {
+      e.stopPropagation();
+      let v = parseInt(inp.value) || 0;
+      v = Math.max(0, Math.min(v, effectiveQty(part)));
+      counts[part.id] = v;
+      inp.value = v;
+      updateCard(card, part);
+      updateProgress();
+      saveState();
+    });
+    inp.addEventListener('click', e => e.stopPropagation());
+
+    updateCard(card, part);
+    grid.appendChild(card);
+  });
+}
+
+function increment(part, card) {
+  const cur = getCount(part.id);
+  if (cur >= effectiveQty(part)) return;
+  counts[part.id] = cur + 1;
+  card.querySelector('.cnt-input').value = cur + 1;
+  updateCard(card, part);
+  updateProgress();
+  saveState();
+}
+function decrement(part, card) {
+  const cur = getCount(part.id);
+  if (cur <= 0) return;
+  counts[part.id] = cur - 1;
+  card.querySelector('.cnt-input').value = cur - 1;
+  updateCard(card, part);
+  updateProgress();
+  saveState();
+}
+
+function updateCard(card, part) {
+  const c   = getCount(part.id);
+  const eq  = effectiveQty(part);
+  card.classList.remove('done', 'partial');
+  if (c >= eq)    card.classList.add('done');
+  else if (c > 0) card.classList.add('partial');
+  card.querySelector('.cnt-input').value = c;
+  card.querySelector('.cnt-input').max   = eq;
+  card.querySelector('.total-val').textContent = eq;
+  applyCardVisibility(card);
+}
+
+// ── FILTERS ──────────────────────────────────────────────────────
+function applyFilters() {
+  let anyVisible = false;
+  document.querySelectorAll('.part-card').forEach(card => {
+    const id   = card.dataset.id;
+    const part = PARTS.find(p => p.id === id);
+    const c    = getCount(id);
+    const done = c >= effectiveQty(part);
+
+    let show = true;
+    if (statusFilter === 'remaining' && done)  show = false;
+    if (statusFilter === 'found'     && !done) show = false;
+    if (colorFilter !== 'all' && String(card.dataset.color) !== String(colorFilter)) show = false;
+    if (subFilter   !== 'all' && (card.dataset.sub || '') !== subFilter)             show = false;
+
+    card.classList.toggle('hidden', !show);
+    if (show) anyVisible = true;
+  });
+
+  let empty = document.querySelector('.empty-state');
+  if (!anyVisible) {
+    if (!empty) {
+      empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.textContent = 'No parts match the current filter.';
+      document.getElementById('parts-grid').appendChild(empty);
+    }
+  } else if (empty) {
+    empty.remove();
+  }
+}
+
+function applyCardVisibility(card) {
+  const id   = card.dataset.id;
+  const part = PARTS.find(p => p.id === id);
+  const c    = getCount(id);
+  const done = c >= effectiveQty(part);
+
+  let show = true;
+  if (statusFilter === 'remaining' && done)  show = false;
+  if (statusFilter === 'found'     && !done) show = false;
+  if (colorFilter !== 'all' && String(card.dataset.color) !== String(colorFilter)) show = false;
+  if (subFilter   !== 'all' && (card.dataset.sub || '') !== subFilter)             show = false;
+  card.classList.toggle('hidden', !show);
+}
+
+// ── PROGRESS ─────────────────────────────────────────────────────
+let completionShown = false;
+function updateProgress() {
+  const totalPcs  = PARTS.reduce((s, p) => s + effectiveQty(p), 0);
+  let foundTypes  = 0;
+  let foundPcs    = 0;
+  PARTS.forEach(p => {
+    const c  = getCount(p.id);
+    const eq = effectiveQty(p);
+    if (c >= eq) foundTypes++;
+    foundPcs += Math.min(c, eq);
+  });
+
+  document.getElementById('found-types').textContent = foundTypes;
+  document.getElementById('total-types').textContent = PARTS.length;
+  document.getElementById('found-pcs').textContent   = foundPcs;
+  document.getElementById('total-pcs').textContent   = totalPcs;
+  document.getElementById('progress-bar').style.width = totalPcs ? (foundPcs / totalPcs * 100) + '%' : '0%';
+
+  const complete = foundTypes === PARTS.length;
+  document.getElementById('complete-badge').classList.toggle('visible', complete);
+
+  if (complete && !completionShown) {
+    completionShown = true;
+    showBanner();
+  } else if (!complete) {
+    completionShown = false;
+  }
+
+  updateColorPillCounts();
+}
+
+function updateColorPillCounts() {
+  document.querySelectorAll('.pill-remaining[data-color]').forEach(el => {
+    const cid = String(el.dataset.color);
+    const partsInColor = PARTS.filter(p => String(p.colorId) === cid);
+    const remaining = partsInColor.filter(p => getCount(p.id) < effectiveQty(p)).length;
+    el.textContent = remaining > 0 ? ` · ${remaining}` : ' · ✓';
+    el.closest('.color-pill').classList.toggle('all-done', remaining === 0);
+  });
+}
+
+function showBanner() {
+  const banner = document.getElementById('completion-banner');
+  banner.style.display = 'block';
+  setTimeout(() => { banner.style.display = 'none'; }, 5000);
+}
+
+// ── EXPORT / IMPORT / RESET ───────────────────────────────────────
+document.getElementById('export-btn').addEventListener('click', () => {
+  const filename = (SET.storageKey || 'progress').replace(/_counts$/, '') + '_progress.json';
+  const blob = new Blob([JSON.stringify(counts, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+});
+
+document.getElementById('import-btn').addEventListener('click', () => {
+  document.getElementById('import-input').click();
+});
+document.getElementById('import-input').addEventListener('change', e => {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      counts = JSON.parse(ev.target.result);
+      saveState();
+      document.querySelectorAll('.part-card').forEach(card => {
+        const part = PARTS.find(p => p.id === card.dataset.id);
+        if (part) updateCard(card, part);
+      });
+      updateProgress();
+      applyFilters();
+    } catch(err) { alert('Invalid JSON file.'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+document.getElementById('reset-btn').addEventListener('click', () => {
+  if (!confirm('Reset all counts to zero?')) return;
+  counts = {};
+  saveState();
+  document.querySelectorAll('.part-card').forEach(card => {
+    const part = PARTS.find(p => p.id === card.dataset.id);
+    if (part) updateCard(card, part);
+  });
+  updateProgress();
+  applyFilters();
+  completionShown = false;
+});
+
+// ── MULTIPLIER ────────────────────────────────────────────────────
+const multInput = document.getElementById('multiplier');
+multInput.addEventListener('change', () => {
+  multiplier = Math.max(1, parseInt(multInput.value) || 1);
+  multInput.value = multiplier;
+  PARTS.forEach(p => {
+    const eq = effectiveQty(p);
+    if ((counts[p.id] || 0) > eq) counts[p.id] = eq;
+  });
+  saveState();
+  document.querySelectorAll('.part-card').forEach(card => {
+    const part = PARTS.find(p => p.id === card.dataset.id);
+    if (part) updateCard(card, part);
+  });
+  updateProgress();
+  applyFilters();
+  completionShown = false;
+});
+
+// ── STATUS FILTER BUTTONS ─────────────────────────────────────────
+document.querySelectorAll('[data-status]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    statusFilter = btn.dataset.status;
+    document.querySelectorAll('[data-status]').forEach(b => b.classList.toggle('active', b === btn));
+    applyFilters();
+  });
+});
+
+// ── INIT ──────────────────────────────────────────────────────────
+loadState();
+multInput.value = multiplier;
+buildColorFilters();
+buildSubFilters();
+buildGrid();
+updateProgress();
+</script>
+</body>
+</html>

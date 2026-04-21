@@ -1,0 +1,8 @@
+{
+  "type": "module",
+  "scripts": {
+    "build": "node app/main.js",
+    "validate": "node app/validate.js",
+    "test": "node --test test/*.test.js"
+  }
+}
